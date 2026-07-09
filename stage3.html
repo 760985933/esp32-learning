@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高级阶段 · ESP32 学习路线</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">E32</span><div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div></div>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="stage0.html">预备</a>
+      <a href="stage1.html">入门</a>
+      <a href="stage2.html">中级</a>
+      <a href="stage3.html" class="active">高级</a>
+      <a href="stage4.html">专家</a>
+      <a href="firmware.html">固件</a>
+      <a href="peripherals.html">外设</a>
+      <a href="troubleshoot.html">排错</a>
+    </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="padding:30px 0 10px;">
+    <div class="eyebrow">阶段 03 / 04</div>
+    <h1>高级阶段：进入「物联网」主场</h1>
+    <p class="lead">目标：让设备<strong>互相通信、上云、连接手机、驱动物体、还能无线升级</strong>。你开始像一个真正的物联网工程师那样思考：设备组网、消息路由、功耗与可靠性。</p>
+    <div class="pill-row">
+      <span class="pill accent">7 门课</span>
+      <span class="pill">~16.5 小时</span>
+      <span class="pill">并发 / 组网</span>
+      <span class="pill">云 + 电机 + OTA</span>
+    </div>
+  </section>
+
+  <div class="stage-layout">
+    <aside class="toc">
+      <h4>本阶段目录</h4>
+      <a href="#c1">1 · 异步并发 uasyncio</a>
+      <a href="#c2">2 · ESP‑NOW 直连</a>
+      <a href="#c3">3 · MQTT 消息总线</a>
+      <a href="#c4">4 · BLE 蓝牙</a>
+      <a href="#c5">5 · 电机控制</a>
+      <a href="#c6">6 · 其它传感器</a>
+      <a href="#c7">7 · OTA 无线升级</a>
+    </aside>
+
+    <div>
+
+      <!-- 课程 1 -->
+      <article class="course reveal" id="c1">
+        <div class="course-head">
+          <div class="course-idx">1</div>
+          <div><h3>MicroPython 异步：用 uasyncio 同时做多件事</h3><div class="sub">时长 ≈ 2h · 高级阶段</div></div>
+          <button class="check-btn" data-course="stage3-c1" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🌀</span>
+          <div class="body"><b>心智图像：</b>真正的设备要<strong>一边维持网页、一边读传感器、一边闪灯</strong>。如果还用 <code>while True</code> 硬等，一件事卡住全完蛋。<code>uasyncio</code> 就是 MicroPython 里的「并发管家」——你用 <code>async/await</code> 写几个「可暂停的任务」，它负责在它们之间<strong>聪明地来回切换</strong>。好消息：<strong>这和你在 Python 里学的 asyncio 几乎一模一样！</strong></div>
+        </div>
+        <p>你会的东西直接迁移：<code>async def</code>、<code>await</code>、<code>asyncio.create_task()</code>、<code>asyncio.sleep()</code>（注意它是非阻塞的，<strong>不是</strong> <code>time.sleep</code>）。</p>
+        <pre data-copy><code><span class="kw">import</span> asyncio, machine
+led = machine.Pin(<span class="num">2</span>, machine.Pin.OUT)
+
+<span class="kw">async def</span> blink():                <span class="cm"># 任务1: 闪灯</span>
+    <span class="kw">while</span> <span class="kw">True</span>:
+        led.value(<span class="num">1</span>); <span class="kw">await</span> asyncio.sleep(<span class="num">0.5</span>)
+        led.value(<span class="num">0</span>); <span class="kw">await</span> asyncio.sleep(<span class="num">0.5</span>)
+
+<span class="kw">async def</span> read_sensor():          <span class="cm"># 任务2: 读传感器(互不阻塞)</span>
+    <span class="kw">while</span> <span class="kw">True</span>:
+        print(<span class="str">"读数..."</span>); <span class="kw">await</span> asyncio.sleep(<span class="num">2</span>)
+
+<span class="kw">async def</span> main():
+    <span class="kw">await</span> asyncio.gather(blink(), read_sensor())
+
+asyncio.run(main())</code></pre>
+        <div class="note info"><span class="t">和「中断 + 定时器」的区别？</span>定时器/中断是「硬件触发的小纸条」，适合极简响应；uasyncio 是「软件层的协作式多任务」，适合把一整套逻辑（网络、传感器、UI）组织得清晰可读。复杂项目两者常<strong>配合使用</strong>。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · uasyncio 卡死 / 只跑一个任务</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>程序卡住不动，或只执行了其中一个任务。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 协程里忘了写 <code>await</code>；② 用了阻塞的 <code>time.sleep()</code> 而不是 <code>asyncio.sleep()</code>；③ 没用 <code>asyncio.gather</code> 并发，主任务没 <code>asyncio.run</code>。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>协程内一律用 <code>await asyncio.sleep()</code>；所有耗时调用前加 <code>await</code>；用 <code>asyncio.gather(a(), b())</code> 并发；入口用 <code>asyncio.run(main())</code>。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 2 -->
+      <article class="course reveal" id="c2">
+        <div class="course-head">
+          <div class="course-idx">2</div>
+          <div><h3>ESP‑NOW：芯片之间直接「喊话」，无需路由器</h3><div class="sub">时长 ≈ 2h · 高级阶段</div></div>
+          <button class="check-btn" data-course="stage3-c2" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">📡</span>
+          <div class="body"><b>心智图像：</b>Wi‑Fi 通常要「先连路由器才能说话」。ESP‑NOW 是 ESP32 的<strong>暗语频道</strong>：两块板子可以直接互发数据包，<strong>不经过路由器</strong>。延迟极低、省电，特别适合「一个主控 + 一圈传感器节点」的组网。</div>
+        </div>
+        <p>下面是一块「发送端」给对端广播消息的骨架。双方都要 <code>import espnow</code>，接收端把自己的 MAC 地址（或广播地址）加为 peer。</p>
+        <pre data-copy><code><span class="kw">import</span> network, espnow
+w = network.WLAN(network.STA_IF); w.active(<span class="kw">True</span>)
+e = espnow.ESPNow(); e.active(<span class="kw">True</span>)
+
+<span class="cm"># 把「接收端」的 MAC 加为对端(广播可写 b'\xff'*6)</span>
+peer = <span class="kw">b</span><span class="str">'\xaa\xbb\xcc\xdd\xee\xff'</span>
+e.add_peer(peer)
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    e.send(peer, <span class="str">"温度:23.5"</span>)   <span class="cm"># 直接喊话</span>
+    time.sleep(<span class="num">1</span>)
+
+<span class="cm"># 接收端: msg = e.recv()  → (mac, data)</span></code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · ESP‑NOW 一对多广播</b><span class="hint">拖滑块改节点数</span></div>
+          <div class="demo-body">
+            <canvas data-demo="espNow" style="height:260px"></canvas>
+            <div class="controls">
+              <label>节点数 <input type="range" min="2" max="6" value="4" data-ctrl="peers"></label>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">ESP‑NOW vs Wi‑Fi STA</span>两者可共存于同一块板（都走 2.4GHz 射频），但 ESP‑NOW 包更简单、没有 TCP/IP 那套握手，所以<strong>快且省电</strong>。需要「跨网络/上云」时还是得用普通 Wi‑Fi。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · ESP‑NOW 收不到</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>发送端发了，接收端 <code>recv()</code> 一直等不到。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 双方 MAC 写错 / 广播地址不对；② 信道不一致；③ 收发端都要 <code>import espnow</code> 并 <code>e.active(True)</code>；④ 发送端没 <code>add_peer</code>。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>确认双方 STA 都 <code>active(True)</code>；peer 用正确 MAC 或 <code>b'\xff'*6</code> 广播；保证同一 Wi‑Fi 信道；收发端都 <code>e.active(True)</code> 且发送端已 add_peer。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 3 -->
+      <article class="course reveal" id="c3">
+        <div class="course-head">
+          <div class="course-idx">3</div>
+          <div><h3>MQTT：物联网的「消息总线」</h3><div class="sub">时长 ≈ 2.5h · 高级阶段</div></div>
+          <button class="check-btn" data-course="stage3-c3" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🚌</span>
+          <div class="body"><b>心智图像：</b>MQTT 像公司里的<strong>公告板（Broker 中介）</strong>。设备 A 不认识设备 B，但它往「主题 home/living/temp」上<strong>贴（publish）</strong>一条消息；任何<strong>订阅（subscribe）</strong>了这个主题的设备都会收到。解耦、跨网络、手机/云端都能参与——这是物联网最主流的协议。</div>
+        </div>
+        <p>ESP32 连上 Wi‑Fi 后，用 <code>umqtt.simple</code> 连接公共或私有的 Broker（如 EMQX、Mosquitto、或免费测试 broker）。下面把温湿度发到主题，手机端随便什么 MQTT 客户端订阅即可看到。</p>
+        <pre data-copy><code><span class="kw">import</span> ubinascii, ujson
+<span class="kw">from</span> umqtt.simple <span class="kw">import</span> MQTTClient
+
+c = MQTTClient(<span class="str">"esp32_01"</span>, <span class="str">"broker.emqx.io"</span>, <span class="num">1883</span>)
+c.connect()
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    msg = ujson.dumps({<span class="str">"t"</span>: <span class="num">23.5</span>, <span class="str">"h"</span>: <span class="num">55</span>})
+    c.publish(<span class="str">"home/living/temp"</span>, msg)   <span class="cm"># 贴公告</span>
+    <span class="cm"># c.subscribe("home/cmd") 可订阅手机下发的指令</span>
+    time.sleep(<span class="num">5</span>)</code></pre>
+        <div class="note info"><span class="t">主题（Topic）的命名套路</span>用斜杠分层，像文件夹：<code>家/房间/设备/属性</code>。这样你既能订阅「某一盏灯」，也能订阅「整个客厅/*」批量接收。善用通配符 <code>#</code>(多层) 和 <code>+</code>(单层)。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · MQTT 连不上 / 收不到</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p><code>connect()</code> 失败，或发布后订阅端收不到。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① broker 地址/端口错（默认 1883）；② 板子还没连上 Wi‑Fi；③ 订阅端没先 <code>subscribe</code> 就等；④ 主题大小写/拼写敏感不一致。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>先用公共测试 broker（<code>broker.emqx.io:1883</code>）；确认已 <code>wlan.isconnected()</code>；发布前先 <code>connect()</code>；订阅端先 <code>subscribe</code> 再循环收；主题两端逐字一致。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 4 -->
+      <article class="course reveal" id="c4">
+        <div class="course-head">
+          <div class="course-idx">4</div>
+          <div><h3>BLE 蓝牙低功耗：直连你的手机 App</h3><div class="sub">时长 ≈ 2.5h · 高级阶段</div></div>
+          <button class="check-btn" data-course="stage3-c4" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">📲</span>
+          <div class="body"><b>心智图像：</b>BLE 像 ESP32 开了一个<strong>「会客室」（GATT 服务）</strong>，里面摆了几张「桌子」（特征 Characteristic）。手机走近，连上门，就能「读/写」桌子上的数据——比如读电量、写一句「开门」。和经典蓝牙比，它<strong>大部分时间睡觉、只在通信瞬间醒一下</strong>，所以极省电。</div>
+        </div>
+        <p>MicroPython 用 <code>bluetooth</code> + <code>ble</code> 模块，按 GATT 规范注册「服务/特征」。下面把一颗「读数」特征暴露出去，手机用任意 BLE 调试 App 即可读取。</p>
+        <pre data-copy><code><span class="kw">import</span> bluetooth, machine
+<span class="kw">from</span> ble <span class="kw">import</span> bluetooth  <span class="cm"># 实际为: from micropython import const ... (示意)</span>
+ble = bluetooth.BLE(); ble.active(<span class="kw">True</span>)
+
+<span class="cm"># 简化示意: 注册一个可读特征, UUID 自定义</span>
+SERVICE = bluetooth.UUID(<span class="num">0x1234</span>)
+CHAR    = bluetooth.UUID(<span class="num">0x5678</span>)
+CHAR = (CHAR, bluetooth.FLAG_READ | bluetooth.FLAG_NOTIFY)
+SERVER = (SERVICE, [CHAR])
+handles = ble.gatts_register_services([SERVER])
+
+<span class="cm"># 手机读时, 回一个当前读数</span>
+ble.gatts_write(handles[<span class="num">0</span>][<span class="num">0</span>], <span class="kw">b</span><span class="str">"23.5"</span>)</code></pre>
+        <div class="note warn"><span class="t">BLE 还是经典蓝牙？</span>ESP32 两种都支持，但<strong>做手机近场控制/手环类，用 BLE</strong>（省电、iOS/Android 原生支持）；传音频/大文件才用经典蓝牙。新手别一上来就折腾音频。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · BLE 手机搜不到 / 无数据</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>手机用 nRF Connect 搜不到设备，或连上后读不到数据。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① GATT 服务没注册成功；② UUID 与手机端不一致/冲突；③ 手机用的是经典蓝牙 App（BLE 需专用）；④ iOS 有连接缓存。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>确认 <code>ble.active(True)</code> 且 <code>gatts_register_services</code> 成功；用标准 128 位 UUID；手机用 BLE 调试 App（nRF Connect）；iOS 上删掉设备重连清缓存。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 5 -->
+      <article class="course reveal" id="c5">
+        <div class="course-head">
+          <div class="course-idx">5</div>
+          <div><h3>电机控制：让设备「动起来」</h3><div class="sub">时长 ≈ 2.5h · 高级阶段</div></div>
+          <button class="check-btn" data-course="stage3-c5" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">⚙️</span>
+          <div class="body"><b>心智图像：</b>GPIO 引脚像<strong>手指</strong>，力气很小（几十 mA），推不动电机这种「大块头」。于是我们要<strong>雇一个壮汉（驱动板 / MOSFET / 电机驱动芯片）</strong>：手指只给壮汉发「轻推/重推」的信号（PWM 调占空比 = 控制转速），壮汉才去驱动电机。舵机则更简单——给它一个 PWM 脉冲宽度，它就转到对应角度。</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">直流电机</h4><p style="font-size:14px">用 L298N / TB6612 / MOSFET 驱动。PWM 调<strong>转速</strong>；换两根线顺序调<strong>方向</strong>。</p></div>
+          <div class="card"><h4 style="margin-top:0">舵机 Servo</h4><p style="font-size:14px">PWM 脉宽 0.5~2.5ms 对应 0~180°。MicroPython 有 <code>machine.Servo</code>。</p></div>
+          <div class="card"><h4 style="margin-top:0">步进电机</h4><p style="font-size:14px">一步一步走，定位精准。需驱动板（A4988 等）给脉冲序列。</p></div>
+        </div>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> PWM, Pin
+<span class="kw">import</span> time
+motor = PWM(Pin(<span class="num">14</span>), freq=<span class="num">1000</span>)  <span class="cm"># 接驱动板 PWM 输入</span>
+
+motor.duty_u16(<span class="num">32768</span>)   <span class="cm"># 约 50% → 半速</span>
+<span class="cm"># 舵机:  from machine import Servo; s=Servo(Pin(13)); s.angle(90)</span></code></pre>
+        <div class="wiring" data-wiring="motor"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 电机不转 / 只响 / 单向</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>电机完全不转，或只嗡嗡响不转，或只能一个方向。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 驱动板没接独立电源或与 ESP32 没<b>共地</b>；② IN1/IN2 逻辑错（同高同低都不转）；③ PWM 频率/占空比不对；④ 电机电流超过驱动板能力；⑤ 缺续流二极管烧了驱动芯片。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>驱动板接独立电源并和 ESP32 <b>共 GND</b>；IN1/IN2 一高一低控制方向、都低则刹车；PWM 调占空比调速；确认驱动板电流够用；务必加续流二极管。</p></div>
+          </div>
+        </div>
+        <div class="note danger"><span class="t">电机的反向电压会「击穿」芯片</span>电机是感性负载，断电瞬间会产生高压反冲。务必加<strong>续流二极管</strong>，并用独立电源/驱动板，<strong>绝不用 GPIO 直接驱电机</strong>。否则 ESP32 很可能当场去世。</div>
+      </article>
+
+      <!-- 课程 6 -->
+      <article class="course reveal" id="c6">
+        <div class="course-head">
+          <div class="course-idx">6</div>
+          <div><h3>其它传感器：红外 / 触摸 / 霍尔</h3><div class="sub">时长 ≈ 1.5h · 高级阶段</div></div>
+          <button class="check-btn" data-course="stage3-c6" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🧲</span>
+          <div class="body"><b>心智图像：</b>传感器就是各种「感官」：<strong>触摸</strong>像皮肤（ESP32 好多脚自带触摸感应，手一碰就变）；<strong>霍尔</strong>像能感知磁场的舌头（靠近磁铁就触发，用来测转速/门磁）；<strong>红外</strong>像眼睛（发射管+接收管，有无遮挡=对射/反射式测距、循迹）。</div>
+        </div>
+        <ul class="clean">
+          <li><b>触摸 Touch：</b><code>machine.TouchPad(Pin(32))</code>，<code>read()</code> 返回电容值，手靠近数值骤降。无需外接元件！</li>
+          <li><b>霍尔 Hall：</b>ESP32 内核集成霍尔传感器，<code>import machine; machine.hall_sensor()</code> 读磁场。外接开关型霍尔（如 3144）更常用，输出就是个数字引脚。</li>
+          <li><b>红外 IR：</b>用红外接收头（VS1838）+ <code>ir</code> 库解码遥控器；或一对红外对管做循迹/避障。</li>
+        </ul>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> TouchPad, Pin
+tp = TouchPad(Pin(<span class="num">32</span>))
+<span class="kw">while</span> <span class="kw">True</span>:
+    v = tp.read()
+    <span class="kw">if</span> v &lt; <span class="num">200</span>:     <span class="cm"># 数值低于阈值 = 被触摸</span>
+        print(<span class="str">"摸到啦!"</span>)
+    time.sleep(<span class="num">0.1</span>)</code></pre>
+        <div class="note info"><span class="t">为什么唤醒用触摸/霍尔很常见？</span>它们功耗极低、响应快，常配合「深度睡眠」做「轻触即醒」的电池设备（回想中级课 8 的省电模型）。</div>
+        <div class="wiring" data-wiring="ir"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 触摸/霍尔/红外 不起作用</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>触摸读数一直不变；霍尔接了没反应；红外遥控收不到。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 触摸脚只能用带 <code>TouchPad</code> 功能的脚（不是所有脚都行）；② 霍尔模拟型需 ADC 脚、开关型是数字脚，接错类型读不到；③ 红外接收头 OUT 接错脚、或被强光干扰；④ 阈值设得不合理。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>触摸用 GPIO32/33/27 等专用脚；霍尔按「模拟/数字」选对引脚类型；红外 OUT 接任意数字 GPIO、远离日光灯；先串口打印原始读数再定阈值。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 7 -->
+      <article class="course reveal" id="c7">
+        <div class="course-head">
+          <div class="course-idx">7</div>
+          <div><h3>OTA 无线升级：不用插线就能更新固件</h3><div class="sub">时长 ≈ 2h · 高级阶段</div></div>
+          <button class="check-btn" data-course="stage3-c7" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🛰️</span>
+          <div class="body"><b>心智图像：</b>设备装到天花板上之后，你还想爬梯子插 USB 去改代码吗？<strong>OTA（Over‑The‑Air）</strong>就是「空中投递」：设备连网后，从服务器<strong>下载新版本程序</strong>，写进 Flash，重启即生效。像手机系统更新一样省事。</div>
+        </div>
+        <p>MicroPython 下 OTA 思路通常是：把代码放在 <code>/lib</code>、用「版本文件 + 下载替换」策略，或上 ESP‑IDF 后使用官方<strong>双分区（A/B）OTA</strong>。下面给一个最简「下载新 main.py 并重启」的骨架：</p>
+        <pre data-copy><code><span class="kw">import</span> urequests, machine, uos
+<span class="cm"># 1) 从你的服务器拉取新版本</span>
+r = urequests.get(<span class="str">"http://myserver/main.py"</span>)
+<span class="cm"># 2) 写回文件系统(可先备份旧版)</span>
+uos.rename(<span class="str">"main.py"</span>, <span class="str">"main.bak"</span>)
+<span class="kw">with</span> open(<span class="str">"main.py"</span>, <span class="str">"w"</span>) <span class="kw">as</span> f: f.write(r.text)
+<span class="cm"># 3) 重启生效</span>
+machine.reset()</code></pre>
+        <div class="note warn"><span class="t">生产级 OTA 的关键三件事</span>① <strong>校验</strong>下载完整性（哈希/签名），防止半截损坏变砖；② <strong>双备份</strong>，新版本起不来还能回滚旧版；③ <strong>分批灰度</strong>，别一次推给所有设备。这些在专家阶段「量产工程化」会展开。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · OTA 升级失败 / 变砖</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>下载后设备起不来、反复重启，或直接「变砖」连不上。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 下载只写了一半就重启（网络中断）；② 新代码有语法/导入错误；③ MicroPython 单文件覆盖没有备份，坏了无法回退；④ 没校验完整性。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>升级前先 <code>uos.rename</code> 备份旧版；下载完校验长度/哈希再写；写失败保留旧版；上 ESP‑IDF 后用官方 A/B 双分区，起不来自动回滚。</p></div>
+          </div>
+        </div>
+        <p>🎉 <b>高级阶段完成！</b>现在你能让设备组网、上云、连手机、驱动物体、还能远程升级。最后一座山——专家阶段，钻进芯片底层、筑牢安全、跑边缘 AI、交付可量产的产品。</p>
+      </article>
+
+    </div>
+  </div>
+
+  <footer class="foot">
+    高级阶段完 · 下一站：<a href="stage4.html">专家阶段 →</a> ESP‑IDF 原生 C、FreeRTOS、安全、摄像头/AI、量产工程化。
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+<script src="assets/demos.js"></script>
+<script src="assets/wiring.js"></script>
+</body>
+</html>

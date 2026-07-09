@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>常见问题排错卡 · 汇总</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">E32</span><div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div></div>
+  <nav>
+    <a href="index.html">总览</a>
+    <a href="stage0.html">预备</a>
+    <a href="stage1.html">入门</a>
+    <a href="stage2.html">中级</a>
+    <a href="stage3.html">高级</a>
+    <a href="stage4.html">专家</a>
+    <a href="firmware.html">固件</a>
+    <a href="peripherals.html">外设</a>
+    <a href="troubleshoot.html" class="active">排错</a>
+  </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="padding:30px 0 10px;">
+    <div class="eyebrow">排错 · 汇总</div>
+    <h1>常见问题排错卡：按阶段速查</h1>
+    <p class="lead">把各阶段最容易翻车的点集中在这里。先点上方筛选你所在的阶段，对照<strong>症状 → 原因 → 解法</strong>三步走。硬件世界里「看不见」，串口日志就是你的眼睛。</p>
+    <div class="filter-bar">
+      <button class="fbtn active" data-f="all">全部</button>
+      <button class="fbtn" data-f="stage0">预备</button>
+      <button class="fbtn" data-f="stage1">入门</button>
+      <button class="fbtn" data-f="stage2">中级</button>
+      <button class="fbtn" data-f="stage3">高级</button>
+      <button class="fbtn" data-f="stage4">专家</button>
+    </div>
+  </section>
+
+  <!-- 预备 -->
+  <section class="ts-group reveal" data-stage="stage0">
+    <h2>预备阶段 · 电路与 PCB</h2>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>PCB 不通电 / 芯片发烫 / Wi‑Fi 弱</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>板子回来不通电、芯片烫手、无线信号极弱、偶尔莫名复位。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>线宽太细载流不足；电源脚缺去耦电容；天线下方铺铜/走线屏蔽；封装画错焊不上；GND 没连成整片。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>电源/地加粗(≥0.5mm)；每 IC 旁放 0.1μF 陶瓷电容；天线区净空；打样前 ERC+DRC 清零；整板铺地铜保持低阻抗回路。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 入门 -->
+  <section class="ts-group reveal" data-stage="stage1">
+    <h2>入门阶段</h2>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>灯不亮</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>代码跑起来了，LED 不闪。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>① LED 正负极接反；② 没串电阻或电阻太大；③ 引脚号写错；④ 板载灯是 GPIO2，外接要确认脚。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>LED 长脚接 GPIO、短脚接 GND；串 220Ω；确认脚号；先试板载蓝灯(GPIO2)排除接线问题。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>端口找不到 / 烧录失败</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>Thonny 找不到串口，或上传报错。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>没装 USB 驱动(CH340/CP210x)；板子没进下载模式；端口被占用；线只是充电线。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>装对应驱动；换数据线；设备管理器/ls /dev/cu.* 查端口；必要时长按 BOOT 再上传。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>读按钮全 1 / 全 0（无变化）</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>按按钮读到的电平不变，或一直 1。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>引脚浮空(没启用上拉/下拉)；按钮接法错；代码读成 OUTPUT。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>用 <code>Pin(Pin.IN, Pin.PULL_UP)</code>；一端接 GPIO、一端接 GND；按下读到 0、松开读到 1。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>串口乱码</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>串口打印一堆乱码。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>波特率不匹配(常见 115200)；编码问题；线接触不良。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>确认两端波特率一致；重插 USB；换线。查看 <a href="stage1.html#c6">入门6 · 串口监视器</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 中级 -->
+  <section class="ts-group reveal" data-stage="stage2">
+    <h2>中级阶段</h2>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>ADC 读数跳变 / 不准</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>电位器没动，读数上下乱跳；或范围不是 0~4095。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>没设 <code>atten</code> 导致上限只有 1V；电源纹波；浮空；噪声。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>用 <code>adc.atten(machine.ADC.ATTN_11DB)</code> 扩到 0~3.3V；软件平均多次采样；电源旁加去耦电容。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>PWM 占空比报错</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p><code>duty()</code> 报范围错或没效果。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>新旧版 API 不同：老 <code>duty(0~1023)</code>，新 <code>duty_u16(0~65535)</code>。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p><code>print(pwm)</code> 看提示；按版本换 API。详见 <a href="stage2.html#c2">中级2 · PWM</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>Wi‑Fi 连不上</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p><code>w.isconnected()</code> 一直 False。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>只支持 2.4GHz（连 5GHz 必失败）；SSID/密码错；信号弱；路由器 MAC 过滤。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>确认 2.4GHz；核对密码；靠近路由器；串口打印状态排查。见 <a href="stage2.html#c2">中级2</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>WebServer 拒绝连接</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>浏览器打不开 ESP32 的 IP。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>手机/电脑没和 ESP32 同 Wi‑Fi；地址填错；服务器死循环没 accept。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>同网段；用 <code>http://&lt;IP&gt;</code>；检查代码缩进确保持续 accept。见 <a href="stage2.html#c3">中级3</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>I2C 屏/传感器不亮或读不到</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>OLED 黑屏，或 <code>i2c.scan()</code> 找不到设备。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>SDA/SCL 接反；地址不对；没上拉(模块常已带)；供电不足。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>确认 SDA=GPIO21、SCL=GPIO22；<code>i2c.scan()</code> 看真实地址；核对库初始化地址。见 <a href="stage2.html#c5">中级5</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>深度睡眠醒不来</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>进深度睡眠后再也唤不醒。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>唤醒源(按钮/RTC)没配置；唤醒脚接法错；EXT0/EXT1 参数错。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>用 <code>machine.wake_reason()</code> 调试；确认唤醒脚接法与上拉；先试定时器唤醒。见 <a href="stage2.html#c8">中级8</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 高级 -->
+  <section class="ts-group reveal" data-stage="stage3">
+    <h2>高级阶段</h2>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>uasyncio 卡死 / 只跑一个任务</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>程序卡住，或只执行其中一个协程。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>协程里漏 <code>await</code>；用了阻塞 <code>time.sleep</code>；没 <code>gather</code> 并发；入口没 <code>asyncio.run</code>。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>一律用 <code>await asyncio.sleep()</code>；<code>gather(a(),b())</code> 并发；<code>asyncio.run(main())</code> 入口。见 <a href="stage3.html#c1">高级1</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>ESP‑NOW 收不到</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>发送端发了，接收端 <code>recv()</code> 一直等不到。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>MAC 错/广播地址不对；信道不一致；双方没都 <code>import espnow</code> 并 active；发送端没 add_peer。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>双方 STA 都 active；peer 用正确 MAC 或广播；同信道；收发都 active 且已 add_peer。见 <a href="stage3.html#c2">高级2</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>MQTT 连不上 / 收不到</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p><code>connect()</code> 失败或发布后订阅端收不到。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>broker 地址/端口错；板子未连 Wi‑Fi；订阅端没先 subscribe；主题大小写不一致。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>用公共 broker；确认 <code>isconnected()</code>；先 subscribe 再收；主题两端逐字一致。见 <a href="stage3.html#c3">高级3</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>BLE 手机搜不到</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>nRF Connect 搜不到，或连上读不到数据。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>GATT 没注册成功；UUID 不符；用了经典蓝牙 App；iOS 缓存。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>确认 active 且 register 成功；用标准 128 位 UUID；BLE 专用 App；iOS 删设备重连。见 <a href="stage3.html#c4">高级4</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>电机不转 / 只响 / 单向</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>电机不转、只嗡嗡响、或只能一个方向。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>驱动板没独立电源或没共地；IN1/IN2 逻辑错；电流超驱动板能力；缺续流二极管烧芯片。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>驱动板接独立电源并和 ESP32 共 GND；IN1/IN2 一高一低控方向；确认电流够；加续流二极管。见 <a href="stage3.html#c5">高级5</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>触摸/霍尔/红外 失效</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>触摸读数不变；霍尔无反应；红外收不到。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>触摸脚用错(需 TouchPad 专用脚)；霍尔模拟/数字脚类型错；红外 OUT 接错或被强光干扰；阈值不合理。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>触摸用 GPIO32/33/27；按模拟/数字选对脚；红外 OUT 接数字 GPIO、远离日光灯；先打印原始值再定阈值。见 <a href="stage3.html#c6">高级6</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>OTA 变砖</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>升级后起不来、反复重启或连不上。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>下载写了一半就重启；新代码有错；单文件覆盖无备份；没校验。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>升级前备份旧版；校验完整性再写；上 ESP‑IDF 用 A/B 双分区自动回滚。见 <a href="stage3.html#c7">高级7</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 专家 -->
+  <section class="ts-group reveal" data-stage="stage4">
+    <h2>专家阶段 · 常见卡点</h2>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>ESP‑IDF 编译报错 / 组件找不到</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p><code>idf.py build</code> 失败，提示找不到 component 或头文件。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>没 <code>idf.py set-target esp32</code>；组件没放进 <code>components/</code>；<code>CMakeLists.txt</code> 没加源文件；IDF 版本与例程不匹配。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>先 set-target；组件按规范放目录；CMake 注册源文件；用与教程一致的 IDF 版本（或 <code>git submodule update</code>）。见 <a href="stage4.html#c1">专家1</a>。</p></div>
+      </div>
+    </div>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>JTAG 连不上 / 调试器无响应</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>OpenOCD 连不上芯片，或断点不生效。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>JTAG 引脚被复用(如 GPIO12/15 启动 strapping)；接线顺序错；目标配置错。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>核对 ESP32 JTAG 引脚(MTDI/TCK/TMS/TDO/TDI)；用 ESP‑Prog 或兼容调试器；先能正常 flash 再上 JTAG。见 <a href="stage4.html#c2">专家2</a>。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    排错汇总 · 更多细节在各阶段课程的「排错卡」内；外设驱动见 <a href="peripherals.html">外设速查 →</a>。
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  document.querySelectorAll(".fbtn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".fbtn").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      var f = b.getAttribute("data-f");
+      document.querySelectorAll(".ts-group").forEach(function (g) {
+        g.style.display = (f === "all" || g.getAttribute("data-stage") === f) ? "" : "none";
+      });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>入门阶段 · ESP32 学习路线</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">E32</span><div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div></div>
+  <nav>
+    <a href="index.html">总览</a>
+    <a href="stage0.html">预备</a>
+    <a href="stage1.html" class="active">入门</a>
+    <a href="stage2.html">中级</a>
+    <a href="stage3.html">高级</a>
+    <a href="stage4.html">专家</a>
+    <a href="firmware.html">固件</a>
+    <a href="peripherals.html">外设</a>
+    <a href="troubleshoot.html">排错</a>
+  </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="padding:30px 0 10px;">
+    <div class="eyebrow">阶段 01 / 04</div>
+    <h1>入门阶段：让灯亮起来</h1>
+    <p class="lead">目标：消除硬件恐惧。学完你能<strong>装好工具、点亮 LED、读懂按钮、用串口看调试信息</strong>。这一阶段的全部直觉，是后面所有内容的根。</p>
+    <div class="pill-row">
+      <span class="pill accent">7 门课</span>
+      <span class="pill">~13.5 小时</span>
+      <span class="pill">MicroPython 为主</span>
+      <span class="pill">零硬件基础友好</span>
+    </div>
+  </section>
+
+  <div class="stage-layout">
+    <!-- 目录 -->
+    <aside class="toc">
+      <h4>本阶段目录</h4>
+      <a href="#c1">1 · 认识 ESP32</a>
+      <a href="#c2">2 · 开发环境</a>
+      <a href="#c3">3 · 面包板与电路直觉</a>
+      <a href="#c4">4 · GPIO 输出 · Blink</a>
+      <a href="#c5">5 · 按钮输入</a>
+      <a href="#c6">6 · 串口监视器</a>
+      <a href="#c7">7 · 第一个项目</a>
+    </aside>
+
+    <!-- 内容 -->
+    <div>
+
+      <!-- 课程 1 -->
+      <article class="course reveal" id="c1">
+        <div class="course-head">
+          <div class="course-idx">1</div>
+          <div><h3>认识 ESP32：你手里这块「带 Wi‑Fi 的小电脑」</h3><div class="sub">时长 ≈ 1.5h · 入门阶段</div></div>
+          <button class="check-btn" data-course="stage1-c1" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🧍</span>
+          <div class="body"><b>心智图像：</b>想象一个<b>戴耳机（Wi‑Fi/蓝牙天线）的小工人</b>，住在绿色电路板里。他有几十只「手」（GPIO 引脚）可以伸出去按开关、读传感器；他有一张「待办清单」（你写的程序）；他还能通过无线和你的手机/路由器聊天。他不需要屏幕、不需要键盘——你用一根 USB 线把清单喂给他就行。</div>
+        </div>
+        <p>ESP32 是一颗 <b>系统级芯片（SoC）</b>：CPU、无线、内存、各种外设都集成在一颗指甲盖大小的芯片里，外面再焊上一块 USB 转串口、一个电压稳压器、一根天线，就成了你买的「开发板」。</p>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">它强在哪</h4><ul class="clean"><li>双核 240MHz，比 Arduino UNO 快几十倍</li><li>内置 Wi‑Fi + 蓝牙</li><li>~30 个可用 GPIO</li><li>支持 PWM / ADC / I2C / SPI / 触摸</li></ul></div>
+          <div class="card"><h4 style="margin-top:0">和谁比</h4><ul class="clean"><li>vs 树莓派：更小更便宜，无 Linux、无屏幕，但实时性更好</li><li>vs Arduino UNO：多了无线、快得多、引脚更多</li></ul></div>
+          <div class="card"><h4 style="margin-top:0">代价</h4><ul class="clean"><li>内存小（几百 KB），跑不了大型程序</li><li>没有操作系统界面</li><li>电压是 3.3V，别接 5V 设备直接怼</li></ul></div>
+        </div>
+
+        <h4>一块开发板长这样（把鼠标移到引脚上看说明）</h4>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · ESP32 引脚图</b><span class="hint">悬停引脚查看功能</span></div>
+          <div class="demo-body">
+            <svg viewBox="0 0 520 360" width="100%" style="background:#0b0f15; border-radius:12px;">
+              <rect x="120" y="40" width="280" height="280" rx="16" fill="#0e2a1a" stroke="#1f5b39" stroke-width="2"/>
+              <text x="260" y="200" fill="#caa84a" font-size="16" text-anchor="middle" font-weight="bold">ESP32</text>
+              <text x="260" y="220" fill="#7fe0a8" font-size="10" text-anchor="middle">Dev Module</text>
+              <!-- 左列引脚 -->
+              <g font-size="9" fill="#cfe8da" text-anchor="end">
+                <!-- 每个 pin: rect + text, 重要者带 data-pin -->
+                <g data-pin='{"name":"GND","role":"电源地(0V)","note":"电流的回流点，所有回路都要接它"}'><rect x="92" y="60" width="22" height="12" fill="#caa84a"/><text x="84" y="70">GND</text></g>
+                <g data-pin='{"name":"3V3","role":"3.3V 电源输出","note":"给传感器等小电流设备供电；单脚最多约 500mA"}'><rect x="92" y="84" width="22" height="12" fill="#caa84a"/><text x="84" y="94">3V3</text></g>
+                <g data-pin='{"name":"EN","role":"使能/复位","note":"拉低=复位芯片。一般接 10k 上拉"}'><rect x="92" y="108" width="22" height="12" fill="#caa84a"/><text x="84" y="118">EN</text></g>
+                <g data-pin='{"name":"GPIO36 (VP)","role":"仅输入 · ADC1","note":"只能读不能写；常用于模拟输入"}'><rect x="92" y="132" width="22" height="12" fill="#caa84a"/><text x="84" y="142">VP</text></g>
+                <g data-pin='{"name":"GPIO39 (VN)","role":"仅输入 · ADC1","note":"只能读不能写"}'><rect x="92" y="156" width="22" height="12" fill="#caa84a"/><text x="84" y="166">VN</text></g>
+                <g data-pin='{"name":"GPIO34","role":"仅输入 · ADC1","note":"只能读；不可设上拉/下拉"}'><rect x="92" y="180" width="22" height="12" fill="#caa84a"/><text x="84" y="190">D34</text></g>
+                <g data-pin='{"name":"GPIO35","role":"仅输入 · ADC1","note":"只能读；不可设上拉/下拉"}'><rect x="92" y="204" width="22" height="12" fill="#caa84a"/><text x="84" y="214">D35</text></g>
+                <g data-pin='{"name":"GPIO32","role":"数字 I/O · 触摸","note":"可输出也可输入，带触摸感应"}'><rect x="92" y="228" width="22" height="12" fill="#caa84a"/><text x="84" y="238">D32</text></g>
+                <g data-pin='{"name":"GPIO33","role":"数字 I/O · 触摸","note":"可输出也可输入，带触摸感应"}'><rect x="92" y="252" width="22" height="12" fill="#caa84a"/><text x="84" y="262">D33</text></g>
+                <g data-pin='{"name":"GPIO25","role":"数字 I/O · DAC1","note":"可作 8 位模拟电压输出(0~3.3V)"}'><rect x="92" y="276" width="22" height="12" fill="#caa84a"/><text x="84" y="286">D25</text></g>
+                <rect x="92" y="300" width="22" height="12" fill="#3a4a3a"/><text x="84" y="310">D26</text>
+                <rect x="92" y="324" width="22" height="12" fill="#3a4a3a"/><text x="84" y="334">D27</text>
+              </g>
+              <!-- 右列引脚 -->
+              <g font-size="9" fill="#cfe8da" text-anchor="start">
+                <g data-pin='{"name":"GPIO15","role":"数字 I/O · 启动 Strapping","note":"启动时有特殊作用，做普通输出一般没问题"}'><rect x="406" y="60" width="22" height="12" fill="#caa84a"/><text x="434" y="70">D15</text></g>
+                <g data-pin='{"name":"GPIO2","role":"数字 I/O · 板载 LED","note":"很多板子这颗脚接了蓝灯；启动时也不能拉低"}'><rect x="406" y="84" width="22" height="12" fill="#caa84a"/><text x="434" y="94">D2</text></g>
+                <g data-pin='{"name":"GPIO0","role":"数字 I/O · 启动模式","note":"⚠ 上电时拉低=进入固件下载模式，正常跑程序要保持高/浮"}'><rect x="406" y="108" width="22" height="12" fill="#caa84a"/><text x="434" y="118">D0</text></g>
+                <g data-pin='{"name":"GPIO4","role":"数字 I/O · 触摸","note":"常被接板载 WS2812 彩灯(数据流)"}'><rect x="406" y="132" width="22" height="12" fill="#caa84a"/><text x="434" y="142">D4</text></g>
+                <rect x="406" y="156" width="22" height="12" fill="#3a4a3a"/><text x="434" y="166">D16</text>
+                <rect x="406" y="180" width="22" height="12" fill="#3a4a3a"/><text x="434" y="190">D17</text>
+                <g data-pin='{"name":"GPIO5","role":"数字 I/O · SPI","note":"常用；部分板做 SSD1306 屏的 SCK"}'><rect x="406" y="204" width="22" height="12" fill="#caa84a"/><text x="434" y="214">D5</text></g>
+                <g data-pin='{"name":"GPIO18","role":"数字 I/O · SPI SCK","note":"硬件 SPI 时钟脚"}'><rect x="406" y="228" width="22" height="12" fill="#caa84a"/><text x="434" y="238">D18</text></g>
+                <g data-pin='{"name":"GPIO19","role":"数字 I/O · SPI MISO","note":"硬件 SPI 输入脚"}'><rect x="406" y="252" width="22" height="12" fill="#caa84a"/><text x="434" y="262">D19</text></g>
+                <g data-pin='{"name":"GPIO21","role":"数字 I/O · I2C SDA","note":"默认 I2C 数据线"}'><rect x="406" y="276" width="22" height="12" fill="#caa84a"/><text x="434" y="286">D21</text></g>
+                <g data-pin='{"name":"GPIO22","role":"数字 I/O · I2C SCL","note":"默认 I2C 时钟线"}'><rect x="406" y="300" width="22" height="12" fill="#caa84a"/><text x="434" y="310">D22</text></g>
+                <g data-pin='{"name":"GPIO23","role":"数字 I/O · SPI MOSI","note":"硬件 SPI 输出脚"}'><rect x="406" y="324" width="22" height="12" fill="#caa84a"/><text x="434" y="334">D23</text></g>
+              </g>
+              <text x="260" y="350" fill="#5b6b7d" font-size="9" text-anchor="middle">提示：GPIO6~11 内部接闪存，开发板一般不引出；GPIO34/35/36/39 只能输入</text>
+            </svg>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">新手最常踩的 3 个坑</span>
+          ① 把 5V 设备直接接到 3.3V 引脚 → 可能烧芯片；② 搞混「芯片 GPIO 号」和「板子丝印号」，接线时以板子丝印为准；③ 以为插上 USB 就自动有程序——其实要先烧录固件/代码。</div>
+      </article>
+
+      <!-- 课程 2 -->
+      <article class="course reveal" id="c2">
+        <div class="course-head">
+          <div class="course-idx">2</div>
+          <div><h3>开发环境：装好工具，给小工人装上「Python 口音」</h3><div class="sub">时长 ≈ 2h · 入门阶段</div></div>
+          <button class="check-btn" data-course="stage1-c2" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔌</span>
+          <div class="body"><b>心智图像：</b>新买的板子出厂是「白纸」。我们要先往里刷一个<strong> MicroPython 解释器</strong>（像给小工人请个翻译，让他说 Python），然后用 <strong>Thonny</strong>（一个带 Python 控制台的小工具）通过 USB 跟他对话、把程序喂进去。</div>
+        </div>
+        <p>选 MicroPython 的理由很朴素：你本来就懂 Python，几乎<strong>零语法转换成本</strong>。等你建立直觉后，专家阶段再学官方 C 工具链会非常快。</p>
+        <h4>四步跑通</h4>
+        <ul class="clean">
+          <li><b>第 1 步 · 装 Thonny：</b>去 thonny.org 下载，一路下一步。它是个图形化 Python IDE，自带串口连接和文件管理。</li>
+          <li><b>第 2 步 · 烧录 MicroPython 固件：</b>板子插 USB → Thonny 菜单「运行 → 配置解释器」→ 选 <code>MicroPython (ESP32)</code> → 选对串口 → 点「安装/更新固件」，按提示把板子「BOOT 键」按住再点确定，烧完松开。</li>
+          <li><b>第 3 步 · 连上 REPL：</b>配置好后底部出现 <code>&gt;&gt;&gt;</code> 提示符，这就是芯片的「实时控制台」。直接敲 <code>print("hello esp32")</code> 回车，他会立刻回你。</li>
+          <li><b>第 4 步 · 跑第一个文件：</b>在 Thonny 写代码，按 F5 就发到板子运行。想上电自动跑，把文件存成 <code>main.py</code>。</li>
+        </ul>
+        <div class="note info"><span class="t">找不到串口 / 连接失败？</span>Mac 一般是 <code>/dev/cu.usbserial-*</code>，Windows 是「设备管理器」里的 COMx。若死活连不上，多半是没装 USB 驱动（CH340 或 CP210x），去搜你板子型号 + 驱动即可。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 开发环境</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>Thonny 里选不到串口，或提示 <code>Device not found / 连不上</code>；烧录固件一直失败。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 没装 USB 转串口驱动（CH340 / CP210x）；② 烧录时没按住 BOOT 键；③ 用的是「只充电不传数据」的线；④ 串口被别的软件占用。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>装对应驱动；换一根<b>能传数据</b>的线；烧录时按住 BOOT 再点下载、烧完松开；关掉占用串口的其它程序；Mac 在端口里找 <code>/dev/cu.usbserial-*</code>。</p></div>
+          </div>
+        </div>
+        <pre data-copy><code>&gt;&gt;&gt; import machine
+&gt;&gt;&gt; print(machine.ESP32_HEAP_SIZE if hasattr(machine,'ESP32_HEAP_SIZE') else 'MicroPython OK')
+MicroPython OK
+&gt;&gt;&gt; # 看到这条，说明翻译官已上岗 🎉</code></pre>
+      </article>
+
+      <!-- 课程 3 -->
+      <article class="course reveal" id="c3">
+        <div class="course-head">
+          <div class="course-idx">3</div>
+          <div><h3>面包板与电路直觉：电流像水流</h3><div class="sub">时长 ≈ 2h · 入门阶段</div></div>
+          <button class="check-btn" data-course="stage1-c3" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🌊</span>
+          <div class="body"><b>心智图像：</b>把<strong>导线想成水管</strong>，<strong>电压想成水压</strong>，<strong>电流想成水流</strong>，<strong>电阻想成收口的水管</strong>。电流只会从「高水压」流向「低水压」。LED 像个见水就亮的小水轮——但水太大(电流过大)会冲坏它，所以要在前面串一个<strong>限流电阻</strong>当「收口水管」。</div>
+        </div>
+        <div class="two">
+          <div>
+            <h4>认识面包板</h4>
+            <p style="font-size:14.5px">面包板是带金属触点的插孔板，不用焊接就能搭电路。记住它的内部连通规律：<b>同一行（横向 5 孔）是通的</b>，<b>中间凹槽上下两半各自纵向（竖向）相通</b>。所以跨凹槽的信号要用电线引过去。</p>
+            <h4>认识元件</h4>
+            <ul class="clean">
+              <li><b>电阻：</b>身上有彩色环表示阻值。LED 串联 220Ω~330Ω 限流最常用。</li>
+              <li><b>LED：</b>有方向！<b>长脚 = 正极(阳极)</b>，短脚 = 负极(阴极)。反接不亮也不坏。</li>
+              <li><b>导线：</b>公对公杜邦线，用来在面包板和板子间连线。</li>
+            </ul>
+          </div>
+          <div>
+            <h4>一个最小的「灯电路」</h4>
+            <div class="demo">
+              <div class="demo-head"><span class="pulse"></span><b>交互 · 电流像水流</b><span class="hint">点「闭合/断开」</span></div>
+              <div class="demo-body">
+                <canvas data-demo="currentFlow" style="height:240px"></canvas>
+                <div class="controls">
+                  <button class="ctrl" data-ctrl="toggle">断开开关</button>
+                  <span class="readout" data-readout></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wiring" data-wiring="breadboard"></div>
+        <div class="note warn"><span class="t">为什么一定要串联电阻？</span>ESP32 的 GPIO 高电平约 3.3V，而 LED 导通后「压降」只有约 2V，若不限制电流，瞬间电流可能上百 mA，会烧毁 LED 甚至 GPIO 引脚。220Ω 电阻把电流限制在 ~6mA，安全又够亮。</div>
+      </article>
+
+      <!-- 课程 4 -->
+      <article class="course reveal" id="c4">
+        <div class="course-head">
+          <div class="course-idx">4</div>
+          <div><h3>数字世界 · GPIO 输出：让 LED 闪起来（Blink）</h3><div class="sub">时长 ≈ 1.5h · 入门阶段</div></div>
+          <button class="check-btn" data-course="stage1-c4" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">💡</span>
+          <div class="body"><b>心智图像：</b>GPIO 引脚就像墙上的<strong>电灯开关</strong>。你写 <code>pin.value(1)</code> 就是「合上开关 → 通电 → 灯亮」；写 <code>pin.value(0)</code> 就是「拉开开关 → 断电 → 灯灭」。芯片在这一高一低之间反复横跳，灯就闪了。</div>
+        </div>
+        <p>「Blink」是硬件世界的「Hello World」。它教会你三件事：<b>怎么创建一个引脚对象</b>、<b>怎么设成输出</b>、<b>怎么用循环 + 延时制造节奏</b>。</p>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> Pin
+<span class="kw">import</span> time
+
+led = Pin(<span class="num">2</span>, Pin.OUT)   <span class="cm"># GPIO2 接板载蓝灯(高电平亮)</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    led.value(<span class="num">1</span>)        <span class="cm"># 开灯</span>
+    time.sleep(<span class="num">0.5</span>)     <span class="cm"># 亮 0.5 秒</span>
+    led.value(<span class="num">0</span>)        <span class="cm"># 关灯</span>
+    time.sleep(<span class="num">0.5</span>)     <span class="cm"># 灭 0.5 秒</span></code></pre>
+        <div class="note info"><span class="t">接线（若用外接 LED）</span>LED 长脚 → 220Ω 电阻 → GPIO（如 D4）；LED 短脚 → GND。若用板载 LED（多数板在 GPIO2），什么都不用接，直接跑代码就能看到闪。</div>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · Blink 时序</b><span class="hint">拖动滑块改快慢</span></div>
+          <div class="demo-body">
+            <canvas data-demo="blink" style="height:230px"></canvas>
+            <div class="controls">
+              <label>亮灭各 <input type="range" min="50" max="2000" value="500" data-ctrl="delay"> ms</label>
+              <button class="ctrl" data-ctrl="pause">暂停</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="wiring" data-wiring="led"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 灯不亮 / 不闪</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>程序在跑，但 LED 不亮，或一直亮着不闪。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 外接 LED 正负极插反（<b>长脚=阳极</b>应接 GPIO，短脚接 GND）；② 忘记串限流电阻或阻值太大；③ 代码里的 GPIO 号和板子丝印对不上；④ 外接却接了非板载 LED 脚。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>先用<b>板载蓝灯（GPIO2）</b>跑通，排除接线问题；外接时确认长脚接信号脚、短脚经电阻到 GND；打印引脚号、对照板子丝印核对；用试灯确认 GPIO 有输出。</p></div>
+          </div>
+        </div>
+        <p class="muted">注意：<code>time.sleep()</code> 期间芯片「啥也不干、干等」，这叫<strong>阻塞</strong>。入门阶段无所谓，中级我们会学不阻塞的写法。</p>
+      </article>
+
+      <!-- 课程 5 -->
+      <article class="course reveal" id="c5">
+        <div class="course-head">
+          <div class="course-idx">5</div>
+          <div><h3>输入与交互：按钮、上拉/下拉电阻、读取开关</h3><div class="sub">时长 ≈ 2h · 入门阶段</div></div>
+          <button class="check-btn" data-course="stage1-c5" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔘</span>
+          <div class="body"><b>心智图像：</b>按钮就是个<strong>临时接通的水龙头</strong>。没按时，引脚「悬空」像没系绳的风筝，读到的值乱跳；按下时把它接通到 GND（或 VCC），值才确定。<strong>上拉/下拉电阻</strong>就是给风筝系一根绳，让它平时有个确定的状态。</div>
+        </div>
+        <p>ESP32 的引脚可以设成 <code>Pin.IN</code> 来<strong>读</strong>外部电平。问题是：按钮没接时，引脚电平不确定（会受干扰乱跳）。解决办法是启用<strong>内部上拉电阻</strong> <code>Pin.PULL_UP</code>——让引脚平时被「轻轻拉」到高电平，按下按钮才接地变低。</p>
+        <pre data-copy><code>btn = Pin(<span class="num">4</span>, Pin.IN, Pin.PULL_UP)  <span class="cm"># GPIO4, 输入, 启用内部上拉</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="kw">if</span> btn.value() == <span class="num">0</span>:   <span class="cm"># 被拉低 = 按钮按下</span>
+        print(<span class="str">"按键被按下!"</span>)
+        time.sleep(<span class="num">0.2</span>)      <span class="cm"># 简单防抖</span></code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 上拉 / 下拉电阻</b><span class="hint">切换模式 + 按按钮</span></div>
+          <div class="demo-body">
+            <canvas data-demo="pullResistor" style="height:280px"></canvas>
+            <div class="controls">
+              <button class="ctrl" data-ctrl="mode-up" style="border-color:var(--accent);color:var(--accent)">上拉</button>
+              <button class="ctrl" data-ctrl="mode-down">下拉</button>
+              <button class="ctrl" data-ctrl="mode-none">无电阻(浮空)</button>
+              <button class="ctrl" data-ctrl="press">按下按钮</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="wiring" data-wiring="button"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 按钮读不到 / 乱跳</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>读按钮永远返回 1，按了也没反应；或数值时不时乱跳。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 没启用内部上拉，引脚<b>浮空</b>受干扰；② 按钮接法错（应一端接 GPIO、一端接 GND）；③ 没防抖，机械弹跳被误判成多次。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>建 Pin 时加 <code>Pin.PULL_UP</code>；逻辑上「按下 = 读到 0」；加 0.2s 防抖或只在下降沿触发一次。参考上面的「浮空」演示就能看到差别。</p></div>
+          </div>
+        </div>
+        <div class="note danger"><span class="t">永远别让引脚「浮空」去读关键状态</span>点开上面的「无电阻(浮空)」再按按钮，你会发现读到的 0/1 是随机的。真实项目里读按钮/开关，务必启用上拉或下拉。</div>
+      </article>
+
+      <!-- 课程 6 -->
+      <article class="course reveal" id="c6">
+        <div class="course-head">
+          <div class="course-idx">6</div>
+          <div><h3>串口监视器：芯片怎么「说话」</h3><div class="sub">时长 ≈ 1h · 入门阶段</div></div>
+          <button class="check-btn" data-course="stage1-c6" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">📟</span>
+          <div class="body"><b>心智图像：</b>串口是芯片给你发的<strong>短信通道</strong>。你写的 <code>print()</code> 不会显示在芯片上（它没屏幕），而是通过 USB 线「嗖」地发到电脑，显示在 Thonny 底部。它是你<strong>看透芯片在想什么的唯一窗户</strong>。</div>
+        </div>
+        <p>调试硬件 90% 靠串口：程序卡哪了？变量现在是多少？按钮到底读到没？把这些 <code>print</code> 出来一看便知。</p>
+        <ul class="clean">
+          <li><b>波特率：</b>双方约定的「说话速度」，常用 115200。两边不一致就会显示乱码。</li>
+          <li><b>在 Thonny：</b>底部「Shell」区域就是串口监视器，自动按 115200 打开。</li>
+          <li><b>小技巧：</b>出问题时，先在代码最前面 <code>print("boot ok")</code>，确认程序确实跑起来了，再逐步往下加打印。</li>
+        </ul>
+        <pre data-copy><code><span class="kw">import</span> time
+<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">5</span>):
+    print(<span class="str">"计数:"</span>, i)   <span class="cm"># 这行会出现在电脑串口监视器</span>
+    time.sleep(<span class="num">1</span>)</code></pre>
+        <div class="note info"><span class="t">进阶：把报错也打印出来</span>用 <code>try / except Exception as e: print("出错:", e)</code> 包裹可疑代码，硬件世界"看不见"，串口日志就是你的眼睛。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 串口乱码 / 无输出</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>串口窗口一片乱码，或程序明明在跑却完全没输出。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 波特率两边不一致（常用 115200）；② 没真正连上 REPL（解释器没选对）；③ 程序在 <code>print</code> 之前就崩了。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>确认 Thonny 解释器设为 <code>MicroPython (ESP32)</code> 且端口正确；在代码最前面先 <code>print("boot ok")</code> 确认启动；核对波特率一致。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 7 -->
+      <article class="course reveal" id="c7">
+        <div class="course-head">
+          <div class="course-idx">7</div>
+          <div><h3>第一个完整项目：按钮控制灯 + 串口日志</h3><div class="sub">时长 ≈ 1.5h · 入门阶段</div></div>
+          <button class="check-btn" data-course="stage1-c7" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🏗️</span>
+          <div class="body"><b>心智图像：</b>前面学的都是单词，现在是<strong>第一次造句</strong>——把「读按钮」和「控灯」接在一起：按钮一按，灯就反转。串口则像黑匣子，记录每一次状态变化。</div>
+        </div>
+        <p>接线：按钮一端接 GPIO4，另一端接 GND（依赖内部上拉）；LED（或板载蓝灯 GPIO2）由程序控制。下面的代码实现了「按一下，灯在亮/灭之间切换」。</p>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> Pin
+<span class="kw">import</span> time
+
+led = Pin(<span class="num">2</span>, Pin.OUT)
+btn = Pin(<span class="num">4</span>, Pin.IN, Pin.PULL_UP)
+
+state = <span class="num">0</span>          <span class="cm"># 灯当前状态 0=灭 1=亮</span>
+last = <span class="num">1</span>          <span class="cm"># 上一次读到的按钮值(上拉:未按=1)</span>
+led.value(state)
+print(<span class="str">"系统就绪，按按钮切换灯"</span>)
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    v = btn.value()
+    <span class="kw">if</span> last == <span class="num">1</span> <span class="kw">and</span> v == <span class="num">0</span>:      <span class="cm"># 检测到「按下沿」</span>
+        state = <span class="num">1</span> - state          <span class="cm"># 翻转</span>
+        led.value(state)
+        print(<span class="str">"灯现在:"</span>, <span class="str">"亮"</span> <span class="kw">if</span> state <span class="kw">else</span> <span class="str">"灭"</span>)
+        time.sleep(<span class="num">0.2</span>)            <span class="cm"># 防抖</span>
+    last = v</code></pre>
+        <div class="note warn"><span class="t">防抖（debounce）是什么？</span>机械按钮按下/松开瞬间会快速弹跳几次，可能被误读成「按了好几下」。上面用 0.2 秒延时 + 「只在按下沿触发一次」来过滤。后面中级阶段会学更优雅的「中断+定时器」方案。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 按钮控制灯不切换</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>按一下按钮，灯不反转，或疯狂连续翻转。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 在循环里每帧都翻转，没做「沿检测」；② 没防抖，一次按下被当成多次；③ 状态变量作用域错了，每次循环都被重置。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>只在「上次=1 且 本次=0」的<b>下降沿</b>翻转一次；加 0.2s 防抖；用全局 <code>state</code> 变量保存灯的当前状态。</p></div>
+          </div>
+        </div>
+        <p>🎉 <b>恭喜入门阶段完成！</b>你已经建立最核心的直觉：<strong>程序 → 引脚高低 → 外部世界变化</strong>。带着这个模型进入中级，我们会让灯「渐变」、让板子「上网」。</p>
+      </article>
+
+    </div>
+  </div>
+
+  <footer class="foot">
+    入门阶段完 · 下一站：<a href="stage2.html">中级阶段 →</a> 让灯渐变、让板子联网、接传感器。
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+<script src="assets/demos.js"></script>
+<script src="assets/wiring.js"></script>
+</body>
+</html>

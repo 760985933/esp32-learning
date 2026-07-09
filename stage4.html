@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>专家阶段 · ESP32 学习路线</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">E32</span><div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div></div>
+  <nav>
+    <a href="index.html">总览</a>
+    <a href="stage0.html">预备</a>
+    <a href="stage1.html">入门</a>
+    <a href="stage2.html">中级</a>
+    <a href="stage3.html">高级</a>
+    <a href="stage4.html" class="active">专家</a>
+    <a href="firmware.html">固件</a>
+    <a href="peripherals.html">外设</a>
+    <a href="troubleshoot.html">排错</a>
+  </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="padding:30px 0 10px;">
+    <div class="eyebrow">阶段 04 / 04</div>
+    <h1>专家阶段：钻进芯片，交付产品</h1>
+    <p class="lead">目标：摆脱解释器，<strong>用官方 C 工具链榨干硬件</strong>；吃透实时操作系统；筑牢安全；让摄像头/AI 在芯片上跑；把作品变成<strong>可量产、可维护、可升级</strong>的产品。</p>
+    <div class="pill-row">
+      <span class="pill accent">7 门课</span>
+      <span class="pill">~21 小时</span>
+      <span class="pill">ESP‑IDF / C</span>
+      <span class="pill">RTOS / 安全 / AI</span>
+    </div>
+  </section>
+
+  <div class="stage-layout">
+    <aside class="toc">
+      <h4>本阶段目录</h4>
+      <a href="#c1">1 · ESP‑IDF 原生 C</a>
+      <a href="#c2">2 · FreeRTOS 深入</a>
+      <a href="#c3">3 · 网络栈 & 配网</a>
+      <a href="#c4">4 · 安全体系</a>
+      <a href="#c5">5 · 摄像头与图像</a>
+      <a href="#c6">6 · 边缘 AI</a>
+      <a href="#c7">7 · 量产工程化</a>
+    </aside>
+
+    <div>
+
+      <!-- 课程 1 -->
+      <article class="course reveal" id="c1">
+        <div class="course-head">
+          <div class="course-idx">1</div>
+          <div><h3>ESP‑IDF 原生开发：从 Python 走向 C</h3><div class="sub">时长 ≈ 3h · 专家阶段</div></div>
+          <button class="check-btn" data-course="stage4-c1" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">⚙️</span>
+          <div class="body"><b>心智图像：</b>MicroPython 像「请了个翻译官，你说 Python 他翻给芯片听」——方便但有开销。<strong>ESP‑IDF 是直接用芯片的母语（C）对话</strong>：没有翻译损耗、能碰所有底层寄存器、性能与内存都拉满。它本质上 = <strong>FreeRTOS（实时系统）+ LwIP（网络栈）+ 乐鑫驱动</strong> 的一套官方积木。</div>
+        </div>
+        <p>别怕 C：你已经有编程底子（Go/Python），变量、循环、函数都懂，只是语法多了「类型」和「指针」两个新朋友。先把环境搭起来，跑通官方例程，再一点点改。</p>
+        <pre data-copy><code><span class="cm">/* 最小 app_main：点灯 (ESP-IDF / C) */</span>
+<span class="kw">#include</span> <span class="str">"driver/gpio.h"</span>
+
+<span class="kw">void</span> app_main(<span class="kw">void</span>) {
+    gpio_reset_pin(<span class="num">2</span>);
+    gpio_set_direction(<span class="num">2</span>, GPIO_MODE_OUTPUT);
+    <span class="kw">while</span> (<span class="num">1</span>) {
+        gpio_set_level(<span class="num">2</span>, <span class="num">1</span>);   <span class="cm">// 亮</span>
+        vTaskDelay(<span class="num">500</span> / portTICK_PERIOD_MS);
+        gpio_set_level(<span class="num">2</span>, <span class="num">0</span>);   <span class="cm">// 灭</span>
+        vTaskDelay(<span class="num">500</span> / portTICK_PERIOD_MS);
+    }
+}</code></pre>
+        <div class="note info"><span class="t">工作流一句话</span><code>idf.py set-target esp32</code> → 写代码 → <code>idf.py build</code> 编译 → <code>idf.py -p /dev/ttyUSB0 flash monitor</code> 烧录并看日志。配置用 <code>idf.py menuconfig</code> 菜单。组件化：每个功能做成 <code>component</code>，方便复用。</div>
+      </article>
+
+      <!-- 课程 2 -->
+      <article class="course reveal" id="c2">
+        <div class="course-head">
+          <div class="course-idx">2</div>
+          <div><h3>FreeRTOS 深入：任务、队列、信号量、事件组</h3><div class="sub">时长 ≈ 3h · 专家阶段</div></div>
+          <button class="check-btn" data-course="stage4-c2" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🧵</span>
+          <div class="body"><b>心智图像：</b>FreeRTOS 是芯片里的<strong>「车间主任」</strong>。他把工作拆成多个<strong>任务（Task，各自有独立工作台/栈）</strong>，按<strong>优先级抢占</strong>调度——高优先级活儿一来，立刻抢走 CPU。任务之间不能乱翻对方抽屉，于是用<strong>队列（排队传数据）</strong>、<strong>信号量（占坑/同步）</strong>、<strong>事件组（等多个条件凑齐）</strong>来安全协作。</div>
+        </div>
+        <p>下面四种原语是高可靠固件的基石。注意 MicroPython 的 <code>uasyncio</code> 是「协作式」(一个任务不主动让出就一直占着)；而 FreeRTOS 是「抢占式」(主任强制切换)，<strong>实时性更强</strong>。</p>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">任务 Task</h4><p style="font-size:13.5px">独立函数 + 独立栈。<code>xTaskCreate()</code> 创建，优先级数字越大越先跑。</p></div>
+          <div class="card"><h4 style="margin-top:0">队列 Queue</h4><p style="font-size:13.5px">线程安全的「传递带」。<code>xQueueSend/Receive</code> 跨任务传结构体，避免共享变量竞态。</p></div>
+          <div class="card"><h4 style="margin-top:0">信号量 Semaphore</h4><p style="font-size:13.5px">二值=锁(保护资源)；计数=可用资源数；互斥量=防优先级反转。</p></div>
+          <div class="card"><h4 style="margin-top:0">事件组 EventGroup</h4><p style="font-size:13.5px">用位图「等 A 且 B」「等 A 或 B」，一次聚合多个事件再行动。</p></div>
+          <div class="card"><h4 style="margin-top:0">任务通知 Notify</h4><p style="font-size:13.5px">轻量版信号量，单对单通信更快，省内存。</p></div>
+          <div class="card"><h4 style="margin-top:0">软件定时器</h4><p style="font-size:13.5px"><code>xTimer</code> 在定时器任务里回调，适合周期动作。</p></div>
+        </div>
+        <pre data-copy><code><span class="cm">/* 一个任务发、一个任务收 的队列示例 */</span>
+QueueHandle_t q = xQueueCreate(<span class="num">10</span>, <span class="kw">sizeof</span>(<span class="kw">int</span>));
+<span class="kw">void</span> sender(<span class="kw">void</span>* p){ <span class="kw">int</span> v=<span class="num">0</span>; <span class="kw">while</span>(<span class="num">1</span>){ v++; xQueueSend(q,&v,<span class="num">0</span>); vTaskDelay(<span class="num">200</span>); } }
+<span class="kw">void</span> reader(<span class="kw">void</span>* p){ <span class="kw">int</span> v; <span class="kw">while</span>(<span class="num">1</span>){ xQueueReceive(q,&v,portMAX_DELAY); printf(<span class="str">"收到 %d\n"</span>,v); } }</code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 抢占式调度时间线</b><span class="hint">看高优先级如何抢占</span></div>
+          <div class="demo-body">
+            <canvas data-demo="rtos" style="height:300px"></canvas>
+            <div class="controls">
+              <button class="ctrl" data-ctrl="pause">暂停</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">新手两大坑</span>① 在中断里<strong>不能</strong>用普通队列/打印，要用 <code>...FromISR</code> 版本；② 栈开太小会神秘崩溃——任务里别放巨型局部数组。</div>
+      </article>
+
+      <!-- 课程 3 -->
+      <article class="course reveal" id="c3">
+        <div class="course-head">
+          <div class="course-idx">3</div>
+          <div><h3>网络协议栈 LwIP 与配网</h3><div class="sub">时长 ≈ 3h · 专家阶段</div></div>
+          <button class="check-btn" data-course="stage4-c3" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🕸️</span>
+          <div class="body"><b>心智图像：</b>芯片连上 Wi‑Fi 只是「插上了电话线」。<strong>LwIP</strong> 才是里面那套「邮局系统」——负责把你的数据打包成 TCP/UDP、加地址、保证送达。HTTP、WebSocket、MQTT 都跑在它上面。而<strong>配网（Provisioning）</strong>解决一个现实问题：出厂设备不知道你家 Wi‑Fi 密码，得有个「安全地把密码告诉它」的流程。</div>
+        </div>
+        <ul class="clean">
+          <li><b>raw / socket API：</b>C 里用 BSD 风格 socket，和你在 Go/Python 里写的几乎一样。</li>
+          <li><b>WebSocket：</b>比 HTTP 轮询省得多，适合「设备↔浏览器」实时双向（如摄像头流、控制台）。</li>
+          <li><b>mDNS：</b>让设备叫 <code>esp32.local</code>，手机不用记 IP。</li>
+          <li><b>配网：</b>常见「SoftAP + 网页」或「BLE 传密码」两种——手机连上设备的热点/蓝牙，把 SSID/密码发过去，它再去连路由器。</li>
+        </ul>
+        <div class="note info"><span class="t">从 MicroPython 到 C 的网络</span>概念完全通用，只是 API 从 <code>socket</code> 模块换成 LwIP 的 <code>socket()/bind()/accept()</code>。你前面中级/高级攒下的网络直觉，在这里直接复用。</div>
+      </article>
+
+      <!-- 课程 4 -->
+      <article class="course reveal" id="c4">
+        <div class="course-head">
+          <div class="course-idx">4</div>
+          <div><h3>安全体系：TLS / 安全启动 / Flash 加密</h3><div class="sub">时长 ≈ 3h · 专家阶段</div></div>
+          <button class="check-btn" data-course="stage4-c4" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔐</span>
+          <div class="body"><b>心智图像：</b>连网的设备等于「把门开在公网」。三道锁：<strong>① TLS</strong> 像给通信套上「防窃听信封」（HTTPS 就是它）；<strong>② 安全启动 Secure Boot</strong> 像「芯片只认签名过的固件」，坏人刷的假程序它拒绝启动；<strong>③ Flash 加密</strong> 像把硬盘内容「上锁」，拔下芯片直接读也只看到乱码。</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">TLS / mbedTLS</h4><p style="font-size:13.5px">设备与云通信务必走 HTTPS/MQTTS。注意<strong>校验服务器证书</strong>，否则中间人可伪造。</p></div>
+          <div class="card"><h4 style="margin-top:0">Secure Boot</h4><p style="font-size:13.5px">用 RSA/ECDSA 签名固件，公钥烧进 eFuse 不可改。一旦启用，<strong>务必保管好私钥</strong>——丢了就无法再烧录。</p></div>
+          <div class="card"><h4 style="margin-top:0">Flash 加密</h4><p style="font-size:13.5px">明文代码变密文，防固件被逆向偷走你的算法/密钥。<code>idf.py encrypted-flash</code> 开启。</p></div>
+        </div>
+        <div class="note danger"><span class="t">⚠ 安全启动是「单向门」</span>启用后若没备份密钥、或代码有 bug 起不来，设备可能<strong>永久变砖</strong>。开发阶段先用「可重放/测试模式」，量产前再切真密钥，并保留安全回滚窗口。</div>
+      </article>
+
+      <!-- 课程 5 -->
+      <article class="course reveal" id="c5">
+        <div class="course-head">
+          <div class="course-idx">5</div>
+          <div><h3>摄像头与图像：OV2640 / 人脸识别</h3><div class="sub">时长 ≈ 3h · 专家阶段</div></div>
+          <button class="check-btn" data-course="stage4-c5" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">📷</span>
+          <div class="body"><b>心智图像：</b>ESP32‑CAM 是给芯片<strong>装了只眼睛</strong>（OV2640 摄像头）。它抓一帧帧图像，你能存成 JPEG 发出去、或交给「人脸识别库」比对。但注意：芯片内存小，必须外接<strong> PSRAM（伪静态内存）</strong> 当「临时相册」，否则帧缓冲放不下。</div>
+        </div>
+        <ul class="clean">
+          <li><b>取流：</b>初始化 camera，<code>esp_camera_fb_get()</code> 拿到一帧，处理完 <code>fb_return()</code> 归还。</li>
+          <li><b>传输：</b>经 Wi‑Fi 推成 MJPEG 流 / 上传云存储 / 或本地做检测。</li>
+          <li><b>人脸：</b>乐鑫有现成的 <code>esp-face</code> 组件（检测+识别），新手直接调用即可，不必自研模型。</li>
+          <li><b>坑：</b>务必选带 PSRAM 的模组（如 ESP32‑S3 / ESP32‑CAM），否则直接 OOM。</li>
+        </ul>
+        <div class="note warn"><span class="t">别指望 4K/高帧率</span>ESP32 是 MCU 不是 NPU，典型是 <strong>VGA / 低帧率</strong>。要高清多路，得升级到 ESP32‑S3 或外接 AI 加速棒。</div>
+      </article>
+
+      <!-- 课程 6 -->
+      <article class="course reveal" id="c6">
+        <div class="course-head">
+          <div class="course-idx">6</div>
+          <div><h3>边缘 AI：让模型在芯片上跑（TFLite Micro）</h3><div class="sub">时长 ≈ 3h · 专家阶段</div></div>
+          <button class="check-btn" data-course="stage4-c6" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🧠</span>
+          <div class="body"><b>心智图像：</b>通常 AI 在云端「大脑」里算。但有些场景要<strong>就地立刻判断</strong>（掉电风险、延迟、隐私）。<strong>边缘 AI</strong> 就是把一个<strong>被「减肥」过的微型模型</strong>（TensorFlow Lite Micro）塞进芯片，输入传感器数据，直接输出「是/否/类别」。比如：关键词唤醒、异常声音检测、简单姿态识别。</div>
+        </div>
+        <p>流程是「训练在电脑、推理在芯片」：</p>
+        <ol class="clean">
+          <li>在 PC 用 TensorFlow 训一个小模型（如 20KB 的语音唤醒）。</li>
+          <li>量化（int8）把浮点权重压成整数，体积/算力大降。</li>
+          <li>转成 <code>.tflite</code>，再用 <code>xcore-interpreter</code> 在 ESP32 上加载推理。</li>
+          <li>喂实时特征（如麦克风/MEMS 数据），取输出做动作。</li>
+        </ol>
+        <pre data-copy><code><span class="cm">// 伪代码: 在 ESP32 上跑推理</span>
+<span class="kw">const</span> tfl::Model* m = tfl::GetModel(g_model);
+tfl::MicroInterpreter i(m, resolver, tensor_arena, kArenaSize);
+i.AllocateTensors();
+<span class="kw">float</span>* in = i.input(0)->data.f;
+<span class="kw">for</span>(<span class="kw">int</span> k=<span class="num">0</span>;k&lt;FEAT;k++) in[k]=features[k];
+i.Invoke();
+<span class="kw">float</span> out = i.output(0)->data.f[<span class="num">0</span>];   <span class="cm">// 0/1 判定</span></code></pre>
+        <div class="note info"><span class="t">现实预期</span>ESP32 适合<strong>几十 KB 的微型模型、低频推理</strong>。别想跑大模型/视觉大模型；那种交给 S3 + 外部 NPU，或纯云端。</div>
+      </article>
+
+      <!-- 课程 7 -->
+      <article class="course reveal" id="c7">
+        <div class="course-head">
+          <div class="course-idx">7</div>
+          <div><h3>量产与工程化：把作品变成产品</h3><div class="sub">时长 ≈ 3h · 专家阶段</div></div>
+          <button class="check-btn" data-course="stage4-c7" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🏭</span>
+          <div class="body"><b>心智图像：</b>「能跑的 Demo」到「能卖的产品」之间，隔着一个<strong>工程化工厂</strong>：自动编译（CI）、安全分发固件（OTA 服务）、功耗预算、EMC 认证、远程遥测与日志。专家的价值，就是让一千台设备也能稳定、可维护、可回滚。</div>
+        </div>
+        <div class="two">
+          <div>
+            <h4>工程化清单</h4>
+            <ul class="clean">
+              <li><b>CI/CD：</b>GitHub Actions 自动 <code>idf.py build</code>，每次提交都出可烧录固件，杜绝「只在自己电脑能编译」。</li>
+              <li><b>OTA 服务：b></b>自建或云（如 AWS IoT / 阿里云），分批灰度、带签名校验、失败自动回滚。</li>
+              <li><b>遥测：</b>设备定期上报心跳/错误，你能在后台看到哪台「失联」。</li>
+              <li><b>功耗预算：</b>用功耗仪测各模式，确保电池寿命达标（回看中级课 8）。</li>
+              <li><b>认证：</b>出海要过 CE / FCC（EMC 电磁兼容），硬件Layout 就要考虑。</li>
+            </ul>
+          </div>
+          <div>
+            <h4>稳定性三原则</h4>
+            <div class="card"><p style="font-size:14px"><b>看门狗（Watchdog）：</b>程序卡死时自动重启，别让设备「假死无人管」。</p></div>
+            <div class="card" style="margin-top:12px"><p style="font-size:14px"><b>错误上报 + 分级日志：</b>DEBUG/INFO/ERROR 分开，量产关掉啰嗦日志省 flash。</p></div>
+            <div class="card" style="margin-top:12px"><p style="font-size:14px"><b>配置与代码分离：</b>Wi‑Fi/阈值走配置文件，别把常量写死在逻辑里。</p></div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">「能 demo」≠「能量产」</span>实验室里插着 USB 供电、信号满格、只有 1 台；真实场景是电池、弱网、上千台同时 OTA。专家功力，正体现在这些「demo 里不会出现」的地方。</div>
+        <p>🎓 <b>到达专家阶段终点！</b>你已从「只会 Python 的硬件小白」，成长为能<strong>用 C 榨干 ESP32、懂实时系统、会筑牢安全、能上 AI、可交付量产</strong>的物联网工程师。剩下的，是在真实项目里反复打磨这些直觉。</p>
+      </article>
+
+    </div>
+  </div>
+
+  <footer class="foot">
+    专家阶段完 · 回到 <a href="index.html">总览</a> 查看整体进度。路还长，动手焊一块板子，比读十遍都管用 🔧
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+<script src="assets/demos.js"></script>
+</body>
+</html>

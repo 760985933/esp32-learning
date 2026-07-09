@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>外设驱动速查 · 传感器 / 电机 / 屏幕 / 蓝牙 / WiFi</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">E32</span><div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div></div>
+  <nav>
+    <a href="index.html">总览</a>
+    <a href="stage0.html">预备</a>
+    <a href="stage1.html">入门</a>
+    <a href="stage2.html">中级</a>
+    <a href="stage3.html">高级</a>
+    <a href="stage4.html">专家</a>
+    <a href="firmware.html">固件</a>
+    <a href="peripherals.html" class="active">外设</a>
+    <a href="troubleshoot.html">排错</a>
+  </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="padding:30px 0 10px;">
+    <div class="eyebrow">外设驱动 · 速查手册</div>
+    <h1>外设驱动速查：传感器 / 电机 / 屏幕 / 蓝牙 / WiFi</h1>
+    <p class="lead">你问的「外设驱动」其实分散在中级 + 高级阶段里。这里把它们<strong>统一成一张速查表</strong>：每个外设给「用什么接口、推荐元件、最小驱动片段、跳哪课学细节」。需要时翻这一页就够了。</p>
+    <div class="pill-row">
+      <span class="pill accent">5 大类</span>
+      <span class="pill">传感器 / 电机 / 屏</span>
+      <span class="pill">BLE / WiFi</span>
+      <span class="pill">均含代码</span>
+    </div>
+  </section>
+
+  <!-- 速查总表 -->
+  <section class="reveal">
+    <h2>一页速查总表</h2>
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead><tr><th>外设</th><th>接口/协议</th><th>推荐元件</th><th>去哪学</th></tr></thead>
+        <tbody>
+          <tr><td>电位器/模拟量</td><td>ADC（模拟输入）</td><td>10kΩ 电位器</td><td><a href="stage2.html#c1">中级1</a></td></tr>
+          <tr><td>温湿度(单总线)</td><td>1‑Wire</td><td>DHT11/22</td><td><a href="stage2.html#c6">中级6</a></td></tr>
+          <tr><td>温湿度/气压</td><td>I2C</td><td>BME280</td><td><a href="stage2.html#c5">中级5</a></td></tr>
+          <tr><td>触摸/霍尔/红外</td><td>TouchPad / 数字 / 红外</td><td>ESP32 内置 / 3144 / VS1838</td><td><a href="stage3.html#c6">高级6</a></td></tr>
+          <tr><td>直流电机</td><td>PWM + 驱动板</td><td>L298N / TB6612</td><td><a href="stage3.html#c5">高级5</a></td></tr>
+          <tr><td>舵机</td><td>PWM 脉宽</td><td>SG90</td><td><a href="stage3.html#c5">高级5</a></td></tr>
+          <tr><td>步进电机</td><td>脉冲序列</td><td>A4988 + 42 步进</td><td><a href="stage3.html#c5">高级5</a></td></tr>
+          <tr><td>OLED 屏</td><td>I2C</td><td>SSD1306 0.96"</td><td><a href="stage2.html#c5">中级5</a></td></tr>
+          <tr><td>TFT 彩屏</td><td>SPI</td><td>ST7735 / ILI9341</td><td><a href="stage4.html#c5">专家5(图像)</a></td></tr>
+          <tr><td>Wi‑Fi 联网</td><td>802.11 / TCP‑IP</td><td>ESP32 内置</td><td><a href="stage2.html#c2">中级2</a></td></tr>
+          <tr><td>Web 服务器</td><td>HTTP</td><td>ESP32 内置</td><td><a href="stage2.html#c3">中级3</a></td></tr>
+          <tr><td>ESP‑NOW</td><td>2.4G 直连</td><td>ESP32 内置</td><td><a href="stage3.html#c2">高级2</a></td></tr>
+          <tr><td>MQTT</td><td>发布/订阅</td><td>umqtt + Broker</td><td><a href="stage3.html#c3">高级3</a></td></tr>
+          <tr><td>BLE 蓝牙</td><td>GATT</td><td>ESP32 内置</td><td><a href="stage3.html#c4">高级4</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 传感器 -->
+  <section class="reveal">
+    <h2>① 传感器</h2>
+    <div class="mind"><span class="ico">🌡️</span><div class="body"><b>心智图像：</b>传感器是设备的「感官」。按接口分三类：<strong>模拟</strong>（电压连续变化→ADC 读）、<strong>数字单总线</strong>（一根线发脉冲）、<strong>总线型(I2C/SPI)</strong>（两根线挂很多设备）。认准接口，驱动就定了。</div></div>
+
+    <h4 style="margin-top:18px">模拟量（电位器 / 光敏 / 可调电压）</h4>
+    <pre data-copy><code><span class="kw">import</span> machine
+adc = machine.ADC(machine.Pin(<span class="num">34</span>)); adc.atten(machine.ADC.ATTN_11DB)
+<span class="kw">while</span> <span class="kw">True</span>:
+    print(<span class="str">"原始值"</span>, adc.read())   <span class="cm"># 0~4095</span></code></pre>
+    <p class="muted">细节 + 接线图见 <a href="stage2.html#c1">中级1 · ADC 模拟输入</a>。</p>
+
+    <h4 style="margin-top:18px">I2C 数字传感器（BME280 温湿度气压）</h4>
+    <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> I2C, Pin
+i2c = I2C(<span class="num">0</span>, scl=Pin(<span class="num">22</span>), sda=Pin(<span class="num">21</span>))
+<span class="cm"># 用 bme280 库: from bme280 import BME280; b=BME280(i2c=i2c); print(b.values)</span></code></pre>
+    <p class="muted">I2C 地址点名机制 + 接线见 <a href="stage2.html#c5">中级5 · I2C 与 OLED</a>。</p>
+
+    <h4 style="margin-top:18px">触摸 / 霍尔 / 红外（ESP32 内置 + 外接）</h4>
+    <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> TouchPad, Pin
+<span class="cm"># 触摸(无需外接):</span>
+tp = TouchPad(Pin(<span class="num">32</span>)); tp.read()       <span class="cm"># 值变小=被摸</span>
+<span class="cm"># 红外接收(OUT 接 GPIO4):</span>
+<span class="cm"># 用 ir 库解码遥控器按键</span></code></pre>
+    <p class="muted">见 <a href="stage3.html#c6">高级6 · 其它传感器</a>。</p>
+  </section>
+
+  <!-- 电机 -->
+  <section class="reveal">
+    <h2>② 电机（让设备动起来）</h2>
+    <div class="mind"><span class="ico">⚙️</span><div class="body"><b>心智图像：</b>GPIO「力气小」，必须雇「壮汉」驱动板。PWM 调速度，方向由逻辑脚决定。舵机看脉宽定角度，步进看脉冲数定步数。</div></div>
+    <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> PWM, Pin
+motor = PWM(Pin(<span class="num">14</span>), freq=<span class="num">1000</span>)   <span class="cm"># → 驱动板 IN1</span>
+motor.duty_u16(<span class="num">32768</span>)              <span class="cm"># 50% 半速</span>
+<span class="cm"># 舵机: from machine import Servo; Servo(Pin(13)).angle(90)</span></code></pre>
+    <div class="note danger"><span class="t">铁律</span>绝不用 GPIO 直接驱电机！感性负载反向电压会击穿芯片；驱动板要<strong>接独立电源并与 ESP32 共 GND</strong>；务必加续流二极管。接线图见 <a href="stage3.html#c5">高级5</a>。</div>
+  </section>
+
+  <!-- 屏幕 -->
+  <section class="reveal">
+    <h2>③ 屏幕</h2>
+    <h4 style="margin-top:12px">OLED（I2C，最常用）</h4>
+    <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> I2C, Pin
+<span class="kw">import</span> ssd1306
+i2c = I2C(<span class="num">0</span>, scl=Pin(<span class="num">22</span>), sda=Pin(<span class="num">21</span>))
+oled = ssd1306.SSD1306_I2C(<span class="num">128</span>, <span class="num">64</span>, i2c)
+oled.text(<span class="str">"Hello ESP32"</span>, <span class="num">0</span>, <span class="num">0</span>); oled.show()</code></pre>
+    <p class="muted">接线图（VCC/GND/SDA/SCL）见 <a href="stage2.html#c5">中级5 · I2C 与 OLED</a>。</p>
+    <div class="note info"><span class="t">I2C vs SPI 屏幕</span>OLED 小屏用 I2C（省脚、慢）；大彩屏(TFT)用 SPI（脚多、快）。选屏先看接口，再找对应库。</div>
+  </section>
+
+  <!-- 通信 -->
+  <section class="reveal">
+    <h2>④ 无线通信（蓝牙 / Wi‑Fi）</h2>
+    <div class="three">
+      <div class="card"><h4 style="margin-top:0">Wi‑Fi STA</h4><pre data-copy style="margin:6px 0"><code>w=network.WLAN(network.STA_IF);w.active(True)
+w.connect(<span class="str">"SSID"</span>,<span class="str">"pwd"</span>)
+<span class="kw">while</span> not w.isconnected():pass</code></pre><p class="muted" style="font-size:13px"><a href="stage2.html#c2">中级2</a></p></div>
+      <div class="card"><h4 style="margin-top:0">ESP‑NOW</h4><pre data-copy style="margin:6px 0"><code><span class="kw">import</span> espnow
+e=espnow.ESPNow();e.active(True)
+e.add_peer(<span class="kw">b</span><span class="str">'\xff'*6</span>)
+e.send(peer,<span class="str">"hi"</span>)</code></pre><p class="muted" style="font-size:13px"><a href="stage3.html#c2">高级2</a></p></div>
+      <div class="card"><h4 style="margin-top:0">BLE</h4><pre data-copy style="margin:6px 0"><code>ble=bluetooth.BLE()
+ble.active(True)
+<span class="cm"># 注册 GATT 服务/特征</span>
+<span class="cm"># 手机用 nRF Connect 读写</span></code></pre><p class="muted" style="font-size:13px"><a href="stage3.html#c4">高级4</a></p></div>
+    </div>
+    <div class="note info"><span class="t">选型一句话</span>上云/跨网络用 <b>Wi‑Fi + MQTT</b>；同空间多板直连用 <b>ESP‑NOW</b>；手机近场控制用 <b>BLE</b>。三者可共存于一块板。</div>
+  </section>
+
+  <footer class="foot">
+    外设速查完 · 接线看图去各阶段课程；排错去 <a href="troubleshoot.html">排错汇总 →</a>。
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

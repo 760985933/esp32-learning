@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32 从零到专家 · 本地学习路线</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<!-- 顶栏 -->
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">E32</span>
+    <div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div>
+  </div>
+    <nav>
+      <a href="index.html" class="active">总览</a>
+      <a href="stage0.html">预备</a>
+      <a href="stage1.html">入门</a>
+      <a href="stage2.html">中级</a>
+      <a href="stage3.html">高级</a>
+      <a href="stage4.html">专家</a>
+      <a href="firmware.html">固件</a>
+      <a href="peripherals.html">外设</a>
+      <a href="troubleshoot.html">排错</a>
+    </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">给只会 Python / Go 的你</div>
+        <h1>把一块「会联网的小电脑」<br>玩明白，从画面开始</h1>
+        <p class="lead">
+          你不需要先背公式。每一个概念，我会先给你一个<strong>心智图像</strong>——
+          电流像水流、PWM 像快速开关的灯、I2C 像课堂上老师点名。
+          关键概念都配了<strong>可交互的 2D / 3D 演示</strong>，点一下、拖一下，看着它动起来，你就懂了。
+        </p>
+        <div class="hero-stats">
+          <div class="stat"><b>4</b><span>阶段 · 入门→专家</span></div>
+          <div class="stat"><b>29</b><span>门课程</span></div>
+          <div class="stat"><b>~68</b><span>小时系统学习</span></div>
+          <div class="stat"><b>15+</b><span>可玩演示</span></div>
+        </div>
+        <div style="margin-top:28px; display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="stage1.html" class="btn btn-primary magnetic">▶ 从入门开始</a>
+          <a href="#roadmap" class="btn btn-ghost magnetic">看完整路线</a>
+        </div>
+      </div>
+
+      <!-- 主板可视化 (SVG) -->
+      <div class="board-frame">
+        <svg viewBox="0 0 320 240" width="100%" role="img" aria-label="ESP32 开发板示意">
+          <rect x="20" y="20" width="280" height="200" rx="14" fill="#0e2a1a" stroke="#1f5b39" stroke-width="2"/>
+          <!-- 天线 -->
+          <path d="M300 60 q20 -30 0 -60" fill="none" stroke="#3a7d52" stroke-width="3"/>
+          <text x="300" y="58" fill="#7fe0a8" font-size="9">天线</text>
+          <!-- 主芯片 -->
+          <rect x="120" y="90" width="80" height="60" rx="6" fill="#10241a" stroke="#caa84a" stroke-width="2"/>
+          <text x="160" y="124" fill="#e9c46a" font-size="11" text-anchor="middle" font-weight="bold">ESP32</text>
+          <!-- 两颗晶振 -->
+          <rect x="125" y="40" width="14" height="20" fill="#0c1c14" stroke="#3a7d52"/>
+          <rect x="181" y="40" width="14" height="20" fill="#0c1c14" stroke="#3a7d52"/>
+          <!-- USB -->
+          <rect x="40" y="100" width="34" height="40" rx="4" fill="#0c1c14" stroke="#3a7d52"/>
+          <text x="57" y="150" fill="#7fe0a8" font-size="8" text-anchor="middle">USB</text>
+          <!-- 引脚排 -->
+          <g fill="#caa84a">
+            <rect x="30" y="175" width="8" height="22" rx="2"/><rect x="44" y="175" width="8" height="22" rx="2"/>
+            <rect x="58" y="175" width="8" height="22" rx="2"/><rect x="72" y="175" width="8" height="22" rx="2"/>
+            <rect x="240" y="175" width="8" height="22" rx="2"/><rect x="254" y="175" width="8" height="22" rx="2"/>
+            <rect x="268" y="175" width="8" height="22" rx="2"/><rect x="282" y="175" width="8" height="22" rx="2"/>
+          </g>
+          <!-- 闪烁的 LED -->
+          <circle cx="210" cy="100" r="6" fill="#ee6c4d">
+            <animate attributeName="opacity" values="1;0.3;1" dur="1.4s" repeatCount="indefinite"/>
+          </circle>
+          <text x="222" y="104" fill="#ffb59c" font-size="8">LED</text>
+        </svg>
+        <p style="margin:10px 0 0; font-size:13px; color:#9fe3bf; text-align:center;">
+          一块 ESP32 开发板 ≈ 一台带 Wi‑Fi/蓝牙 的微型电脑，价格不到一杯奶茶。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 心智模型导言 -->
+  <section class="reveal">
+    <h2>先建立 4 个心智图像</h2>
+    <p>硬件世界的很多"反直觉"，其实只是换了比喻。记住这四个画面，后面 90% 的概念都是它们的组合：</p>
+    <div class="three">
+      <div class="card hoverable">
+        <div style="font-size:34px">💡</div>
+        <h4>芯片 = 懂事的小工人</h4>
+        <p style="font-size:14.5px">它只会做两件最简单的事：把某个引脚"通电"(高电平) 或"断电"(低电平)。你写的程序，就是给它的一张<strong>待办清单</strong>。</p>
+      </div>
+      <div class="card hoverable">
+        <div style="font-size:34px">🌊</div>
+        <h4>电流 = 水流</h4>
+        <p style="font-size:14.5px">电压像水压，电流像水流，导线像水管，电阻像收口的水管。开关一断，水就流不过去——这就是"断路"。</p>
+      </div>
+      <div class="card hoverable">
+        <div style="font-size:34px">⚡</div>
+        <h4>PWM = 快速开关的灯</h4>
+        <p style="font-size:14.5px">一秒开关几千次，亮的时间占比越大，人眼看到的平均亮度越高。这是调光、控速的万能钥匙。</p>
+      </div>
+      <div class="card hoverable">
+        <div style="font-size:34px">📣</div>
+        <h4>通信 = 上课点名</h4>
+        <p style="font-size:14.5px">I2C、SPI、WiFi…本质都是"按规则轮流说话"。老师(I2C 主机)喊名字(地址)，被点到的学生(从机)才回答。</p>
+      </div>
+    </div>
+    <div class="note info">
+      <span class="t">为什么用 MicroPython 起步？</span>
+      你熟悉 Python，而 MicroPython 让你<strong>用几乎一样的语法</strong>直接控制硬件，无需先啃 C 语言。等直觉建立后，专家阶段再平滑过渡到官方 C 工具链（ESP‑IDF），理解会快得多。
+    </div>
+  </section>
+
+  <!-- 路线图 -->
+  <section id="roadmap" class="reveal">
+    <h2>四阶段学习路线</h2>
+    <p>每个阶段都可独立完成，建议按顺序。单科时长已标在每个课程页里。</p>
+    <div class="stage-grid">
+      <a class="card stage-card hoverable" href="stage1.html">
+        <div class="num">01</div><div class="bar" style="background:linear-gradient(90deg,#ee6c4d,#e9c46a)"></div>
+        <h3>入门阶段</h3>
+        <p style="font-size:14px">认识硬件、点亮 LED、读懂按钮、串口调试。建立"程序控制引脚"的直觉。</p>
+        <div class="meta"><span><b>7</b> 课</span><span><b>~13.5</b> 小时</span></div>
+      </a>
+      <a class="card stage-card hoverable" href="stage2.html">
+        <div class="num">02</div><div class="bar" style="background:linear-gradient(90deg,#2a9d8f,#5aa9e6)"></div>
+        <h3>中级阶段</h3>
+        <p style="font-size:14px">模拟量、调光、联网、做网页服务器、接传感器、中断与省电。做出真正能用的小产品。</p>
+        <div class="meta"><span><b>8</b> 课</span><span><b>~16.5</b> 小时</span></div>
+      </a>
+      <a class="card stage-card hoverable" href="stage3.html">
+        <div class="num">03</div><div class="bar" style="background:linear-gradient(90deg,#5aa9e6,#9b8cff)"></div>
+        <h3>高级阶段</h3>
+        <p style="font-size:14px">多任务、ESP‑NOW 直连、MQTT、蓝牙、电机、OTA 无线升级。进入"物联网"主场。</p>
+        <div class="meta"><span><b>7</b> 课</span><span><b>~16.5</b> 小时</span></div>
+      </a>
+      <a class="card stage-card hoverable" href="stage4.html">
+        <div class="num">04</div><div class="bar" style="background:linear-gradient(90deg,#9b8cff,#ee6c4d)"></div>
+        <h3>专家阶段</h3>
+        <p style="font-size:14px">ESP‑IDF 原生 C、FreeRTOS 深挖、网络安全、摄像头/AI 边缘推理、量产工程化。</p>
+        <div class="meta"><span><b>7</b> 课</span><span><b>~21</b> 小时</span></div>
+      </a>
+    </div>
+
+    <h3 style="margin-top:40px">时间线（建议节奏）</h3>
+    <div class="roadmap">
+      <div class="rm-item"><span class="dot"></span><h4>入门 · 第 1–2 周</h4><div class="dur">~13.5h</div>
+        <p style="font-size:14px">每天 1 小时，先把"灯会闪、按钮会读、串口会打印"跑通。硬件恐惧感在这阶段消失。</p></div>
+      <div class="rm-item"><span class="dot"></span><h4>中级 · 第 3–5 周</h4><div class="dur">~16.5h</div>
+        <p style="font-size:14px">做出"手机控制 LED""温湿度看板"这类能发朋友圈的小项目，建立成就感。</p></div>
+      <div class="rm-item"><span class="dot"></span><h4>高级 · 第 6–8 周</h4><div class="dur">~16.5h</div>
+        <p style="font-size:14px">让多块板子互相通信、上云(MQTT)、接电机做动作。开始像"物联网工程师"。</p></div>
+      <div class="rm-item"><span class="dot"></span><h4>专家 · 第 9 周起</h4><div class="dur">~21h+</div>
+        <p style="font-size:14px">深入底层与量产：实时操作系统、安全启动、边缘 AI、可维护的工程化交付。</p></div>
+    </div>
+  </section>
+
+  <!-- 扩展模块 -->
+  <section class="reveal">
+    <h2>扩展模块（针对「零硬件基础」补强）</h2>
+    <p>如果你完全没有电路 / PCB 底子，或想用 Arduino 框架、查外设驱动、速查排错，先看这几页——它们回答的是「光 ESP32、没基础的人能不能上手」。</p>
+    <div class="stage-grid">
+      <a class="card stage-card hoverable" href="stage0.html">
+        <div class="num">预备</div><div class="bar" style="background:linear-gradient(90deg,#e9c46a,#ee6c4d)"></div>
+        <h3>电路基础 + PCB</h3>
+        <p style="font-size:14px">电阻 / 电容 / 电源 / 三极管 + KiCad 从原理图到打样。零基础也能上手 ESP32。</p>
+        <div class="meta"><span><b>14</b> 节</span><span><b>~10</b> 小时</span></div>
+      </a>
+      <a class="card stage-card hoverable" href="firmware.html">
+        <div class="num">固件</div><div class="bar" style="background:linear-gradient(90deg,#2a9d8f,#5aa9e6)"></div>
+        <h3>固件三路线</h3>
+        <p style="font-size:14px">MicroPython / Arduino / ESP‑IDF 对比与选型，补齐之前没讲的 Arduino 框架。</p>
+        <div class="meta"><span><b>3</b> 路线</span><span>选型指南</span></div>
+      </a>
+      <a class="card stage-card hoverable" href="peripherals.html">
+        <div class="num">外设</div><div class="bar" style="background:linear-gradient(90deg,#5aa9e6,#9b8cff)"></div>
+        <h3>外设驱动速查</h3>
+        <p style="font-size:14px">传感器 / 电机 / 屏幕 / 蓝牙 / WiFi 统一速查，含最小驱动代码与跳转。</p>
+        <div class="meta"><span><b>5</b> 大类</span><span>速查表</span></div>
+      </a>
+      <a class="card stage-card hoverable" href="troubleshoot.html">
+        <div class="num">排错</div><div class="bar" style="background:linear-gradient(90deg,#9b8cff,#ee6c4d)"></div>
+        <h3>排错汇总</h3>
+        <p style="font-size:14px">按阶段筛选的故障卡：症状 → 原因 → 解法，硬件世界的急救包。</p>
+        <div class="meta"><span><b>5</b> 阶段</span><span>可筛选</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 进度仪表盘 -->
+  <section class="reveal">
+    <h2>我的学习进度</h2>
+    <p class="muted">勾选会保存在本机浏览器（localStorage），下次打开自动恢复。进度只存在你电脑上，不上传。</p>
+    <div class="card" style="display:flex; gap:30px; align-items:center; flex-wrap:wrap;">
+      <div style="position:relative; width:130px; height:130px; flex:none;">
+        <svg id="prog-ring" width="130" height="130" viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="56" fill="none" stroke="var(--grid-line)" stroke-width="12"/>
+          <circle class="bar" cx="65" cy="65" r="56" fill="none" stroke="var(--accent)" stroke-width="12"
+                  stroke-linecap="round" transform="rotate(-90 65 65)"/>
+          <text class="pct" x="65" y="70" text-anchor="middle" fill="var(--text)" font-size="24" font-weight="800">0%</text>
+        </svg>
+      </div>
+      <div style="flex:1; min-width:240px;">
+        <div class="dash">
+          <div class="kpi card"><b id="done-count">0</b><span>已完成课程</span></div>
+          <div class="kpi card"><b id="total-count">29</b><span>课程总数</span></div>
+          <div class="kpi card"><b>~68h</b><span>总学习量</span></div>
+        </div>
+        <div id="stage-bars" style="margin-top:14px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    ESP32 学习材料 · 纯本地 HTML，可离线打开 · 直觉优先 · 图文 + 可交互演示。<br>
+    所有演示均为前端 Canvas 实时绘制，无需联网、无需硬件即可"脑内跑通"。实际动手时请配合开发板。<br>
+    扩展：<a href="stage0.html">电路基础+PCB</a> · <a href="firmware.html">固件三路线</a> · <a href="peripherals.html">外设速查</a> · <a href="troubleshoot.html">排错汇总</a>
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+<script>
+  // 首页全局进度（统计所有阶段课程勾选）
+  (function () {
+    var IDS = [];
+    ["stage1","stage2","stage3","stage4"].forEach(function (st) {
+      var n = st === "stage1" ? 7 : st === "stage2" ? 8 : 7;
+      for (var i = 1; i <= n; i++) IDS.push(st + "-c" + i);
+    });
+    var names = { stage1:"入门", stage2:"中级", stage3:"高级", stage4:"专家" };
+    var prog = {};
+    try { prog = JSON.parse(localStorage.getItem("esp32-progress") || "{}"); } catch (e) {}
+    var done = 0; IDS.forEach(function (k) { if (prog[k]) done++; });
+    var total = IDS.length;
+    document.getElementById("done-count").textContent = done;
+    document.getElementById("total-count").textContent = total;
+    var ring = document.getElementById("prog-ring");
+    var c = ring.querySelector("circle.bar");
+    var r = c.getAttribute("r"), circ = 2 * Math.PI * r;
+    c.style.strokeDasharray = circ;
+    c.style.strokeDashoffset = circ * (1 - done / total);
+    ring.querySelector(".pct").textContent = Math.round(done / total * 100) + "%";
+    // 各阶段条
+    var bars = document.getElementById("stage-bars");
+    ["stage1","stage2","stage3","stage4"].forEach(function (st) {
+      var n = st === "stage1" ? 7 : st === "stage2" ? 8 : 7;
+      var d = 0; for (var i = 1; i <= n; i++) if (prog[st + "-c" + i]) d++;
+      var pct = Math.round(d / n * 100);
+      var div = document.createElement("div");
+      div.style.cssText = "display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px;";
+      div.innerHTML = "<span style='width:42px; color:var(--text-soft)'>" + names[st] + "</span>" +
+        "<div style='flex:1; height:8px; background:var(--bg-sunken); border-radius:99px; overflow:hidden'>" +
+        "<div style='width:" + pct + "%; height:100%; background:var(--accent); border-radius:99px'></div></div>" +
+        "<span style='width:54px; text-align:right; color:var(--text-faint)'>" + d + "/" + n + "</span>";
+      bars.appendChild(div);
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>固件开发三路线 · MicroPython / Arduino / ESP-IDF</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">E32</span><div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div></div>
+  <nav>
+    <a href="index.html">总览</a>
+    <a href="stage0.html">预备</a>
+    <a href="stage1.html">入门</a>
+    <a href="stage2.html">中级</a>
+    <a href="stage3.html">高级</a>
+    <a href="stage4.html">专家</a>
+    <a href="firmware.html" class="active">固件</a>
+    <a href="peripherals.html">外设</a>
+    <a href="troubleshoot.html">排错</a>
+  </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="padding:30px 0 10px;">
+    <div class="eyebrow">固件开发 · 路线总览</div>
+    <h1>ESP32 固件三条路线：MicroPython / Arduino / ESP‑IDF</h1>
+    <p class="lead">「固件」就是烧进芯片、真正跑起来的程序。ESP32 有<strong>三条主流路线</strong>：你熟悉的 <b>MicroPython</b>（本路线主线）、最流行的 <b>Arduino 框架（C++）</b>、官方的 <b>ESP‑IDF（原生 C）</b>。它们控制的是同一块芯片，只是「写代码的语言和工具」不同。本页帮你搞清楚差别、并补齐之前没讲的 <b>Arduino</b>。</p>
+    <div class="pill-row">
+      <span class="pill accent">3 条路线</span>
+      <span class="pill">~3 小时读懂选型</span>
+      <span class="pill">MicroPython 已讲</span>
+      <span class="pill">Arduino 新补</span>
+      <span class="pill">ESP‑IDF 见专家阶段</span>
+    </div>
+  </section>
+
+  <!-- 对比表 -->
+  <section class="reveal">
+    <h2>一图看懂三条路线</h2>
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead>
+          <tr><th>维度</th><th>MicroPython</th><th>Arduino 框架</th><th>ESP‑IDF（官方）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>语言</td><td>Python</td><td>C++</td><td>C</td></tr>
+          <tr><td>上手难度</td><td>⭐ 最低（你已会）</td><td>⭐⭐ 低</td><td>⭐⭐⭐⭐ 高</td></tr>
+          <tr><td>运行方式</td><td>解释执行（.py）</td><td>编译为二进制</td><td>编译为二进制</td></tr>
+          <tr><td>性能 / 实时性</td><td>一般</td><td>好</td><td>最好（可裸机/RTOS 精控）</td></tr>
+          <tr><td>生态 / 库</td><td>中等</td><td>🌟 最庞大</td><td>官方全、偏底层</td></tr>
+          <tr><td>调试</td><td>串口 REPL 交互</td><td>串口 + 仿真器</td><td>JTAG 全功能</td></tr>
+          <tr><td>适合谁</td><td>Python 党 / 快速原型</td><td>创客 / 海量现成例程</td><td>量产 / 底层 / 专家</td></tr>
+          <tr><td>本路线位置</td><td>入门→高级（主线）</td><td>本页 + 任何阶段</td><td>专家阶段（stage4）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note info"><span class="t">三者不是替代，是分层</span>多数项目用 MicroPython/Arduino 就能做完；只有当需要极致性能、精细功耗、安全启动、自定义协议栈时，才值得上 ESP‑IDF。你完全可以先 MicroPython 跑通想法，再按需平移到 Arduino/C。</div>
+  </section>
+
+  <!-- Arduino -->
+  <section class="reveal">
+    <h2>路线二 · Arduino 框架（C++）——这次补齐</h2>
+    <div class="mind">
+      <span class="ico">🔧</span>
+      <div class="body"><b>心智图像：</b>Arduino 框架把底层初始化包装成 <code>setup()</code>（开机跑一次）和 <code>loop()</code>（反复跑）两个函数，配一个超大的「零件库市场」。<strong>你几乎能为任何传感器找到现成库</strong>——这是它最大的爽点。你懂 Python，C++ 这里只用最浅的部分，半天就能上手。</div>
+    </div>
+
+    <h3 style="margin-top:24px">① 环境：Arduino IDE / PlatformIO</h3>
+    <ul class="clean">
+      <li><b>Arduino IDE：</b>装好 → 文件→首选项→附加开发板管理器网址，填入 <code>https://dl.espressif.com/dl/package_esp32_index.json</code> → 工具→开发板→ESP32→选你的型号（如 ESP32 Dev Module）→ 选对端口 → 上传。</li>
+      <li><b>PlatformIO（VS Code 插件）：</b>更专业、依赖管理方便，工程化推荐。新建项目选 <code>board = esp32dev</code>。</li>
+    </ul>
+
+    <h3 style="margin-top:24px">② 闪灯 Blink（对照 MicroPython）</h3>
+    <div class="two-col">
+      <div>
+        <p class="muted" style="margin-bottom:6px">Arduino (C++)</p>
+        <pre data-copy><code><span class="kw">void</span> setup() {
+  pinMode(<span class="num">2</span>, OUTPUT);        <span class="cm">// GPIO2 输出</span>
+}
+<span class="kw">void</span> loop() {
+  digitalWrite(<span class="num">2</span>, HIGH);    <span class="cm">// 亮</span>
+  delay(<span class="num">500</span>);
+  digitalWrite(<span class="num">2</span>, LOW);     <span class="cm">// 灭</span>
+  delay(<span class="num">500</span>);
+}</code></pre>
+      </div>
+      <div>
+        <p class="muted" style="margin-bottom:6px">MicroPython（你已学）</p>
+        <pre data-copy><code><span class="kw">import</span> machine, time
+led = machine.Pin(<span class="num">2</span>, machine.Pin.OUT)
+<span class="kw">while</span> <span class="kw">True</span>:
+    led.value(<span class="num">1</span>); time.sleep(<span class="num">0.5</span>)
+    led.value(<span class="num">0</span>); time.sleep(<span class="num">0.5</span>)</code></pre>
+      </div>
+    </div>
+    <div class="note info"><span class="t">对照着看就懂</span><code>pinMode</code>≈<code>Pin(...,OUT)</code>，<code>digitalWrite</code>≈<code>led.value(1)</code>，<code>delay</code>≈<code>time.sleep</code>。<strong>概念一模一样，只是换语法</strong>。你会发现后面每门课的 MicroPython 例子都能「翻译」成 Arduino。</div>
+
+    <h3 style="margin-top:24px">③ 读按钮 + Wi‑Fi（Arduino 风味）</h3>
+    <pre data-copy><code><span class="kw">#include</span> &lt;WiFi.h&gt;
+<span class="kw">const</span> <span class="kw">int</span> BTN = <span class="num">4</span>;
+<span class="kw">void</span> setup() {
+  Serial.begin(<span class="num">115200</span>);
+  pinMode(BTN, INPUT_PULLUP);          <span class="cm">// 启用内部上拉</span>
+  WiFi.begin(<span class="str">"你的SSID"</span>, <span class="str">"密码"</span>);
+  <span class="kw">while</span> (WiFi.status() != WL_CONNECTED) delay(<span class="num">500</span>);
+  Serial.println(WiFi.localIP());
+}
+<span class="kw">void</span> loop() {
+  <span class="kw">if</span> (digitalRead(BTN) == LOW) Serial.println(<span class="str">"按钮按下"</span>);
+  delay(<span class="num">200</span>);
+}</code></pre>
+    <div class="note warn"><span class="t">Arduino 的「坑」</span>① 忘记 <code>pinMode</code> 就读写会怪；② <code>delay()</code> 会阻塞（和 MicroPython 一样），要做并发得上 FreeRTOS 任务或 <code>millis()</code> 非阻塞写法；③ 板型选错会烧录失败或跑不起来。</div>
+  </section>
+
+  <!-- ESP-IDF -->
+  <section class="reveal">
+    <h2>路线三 · ESP‑IDF（官方原生 C）——专家阶段深挖</h2>
+    <div class="mind">
+      <span class="ico">⚙️</span>
+      <div class="body"><b>心智图像：</b>ESP‑IDF 是乐鑫给的「官方工具箱」，直接操作芯片每个寄存器、跑 FreeRTOS 实时系统。它最强也最硬核——安全的 TLS、安全启动、Flash 加密、双分区 OTA、自定义外设时序都在这里。完整讲解在 <a href="stage4.html">专家阶段</a>。</div>
+    </div>
+    <p>最小的 ESP‑IDF 闪灯长这样（<code>app_main</code> 是程序入口，跑在 FreeRTOS 任务里）：</p>
+    <pre data-copy><code><span class="kw">#include</span> <span class="str">"driver/gpio.h"</span>
+<span class="kw">#include</span> <span class="str">"freertos/FreeRTOS.h"</span>
+<span class="kw">#include</span> <span class="str">"freertos/task.h"</span>
+<span class="kw">void</span> app_main() {
+  gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
+  <span class="kw">while</span> (<span class="num">1</span>) {
+    gpio_set_level(GPIO_NUM_2, <span class="num">1</span>);
+    vTaskDelay(<span class="num">500</span> / portTICK_PERIOD_MS);
+    gpio_set_level(GPIO_NUM_2, <span class="num">0</span>);
+    vTaskDelay(<span class="num">500</span> / portTICK_PERIOD_MS);
+  }
+}</code></pre>
+    <div class="note info"><span class="t">为什么先学 MicroPython 再学 IDF 更顺</span>你已经在入门~高级阶段建立了「引脚/外设/通信」的直觉，专家阶段学 IDF 时，只要把同样的直觉「翻译」成 C API，理解速度比直接啃 IDF 快得多。</div>
+  </section>
+
+  <!-- 选型 -->
+  <section class="reveal">
+    <h2>怎么选？一张决策表</h2>
+    <div class="three">
+      <div class="card hoverable"><h4 style="margin-top:0">🐍 选 MicroPython</h4><p style="font-size:14px">你会 Python、想最快看到效果、做原型/教学/数据小工具。串口 REPL 能边写边试。</p></div>
+      <div class="card hoverable"><h4 style="margin-top:0">🔧 选 Arduino</h4><p style="font-size:14px">要复用海量现成库/例程、做创客项目、团队用 C++。对「不会 C」的人来说门槛也低。</p></div>
+      <div class="card hoverable"><h4 style="margin-top:0">⚙️ 选 ESP‑IDF</h4><p style="font-size:14px">要量产、要安全启动/Flash 加密、要极致功耗或自定义底层驱动。公司产品常用。</p></div>
+    </div>
+    <div class="note warn"><span class="t">动手建议</span>本路线的 29 门课用 MicroPython 讲，但<strong>概念和接线完全通用</strong>。想用 Arduino 实现某一课，把该课的 MicroPython 片段按上面「Blink 对照」翻译成 C++ 即可；卡住时搜「ESP32 Arduino &lt;功能&gt;」十有八九有现成例程。</div>
+  </section>
+
+  <!-- 排错 -->
+  <section class="reveal">
+    <h2>固件常见排错</h2>
+    <div class="trouble">
+      <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 烧录 / 编译 / 库</span></div>
+      <div class="t-body">
+        <div class="row"><span class="lab sym">症状</span><p>上传失败「Failed to connect」；或编译报「xxx.h: No such file」；或库函数找不到。</p></div>
+        <div class="row"><span class="lab cau">原因</span><p>① 开发板型号选错/没进下载模式(ESP32 一般自动进，部分板要按住 BOOT 再点上传)；② 端口被占用或驱动没装(CH340/CP210x)；③ 库没装或装错版本；④ Arduino 没添加 ESP32 板支持包。</p></div>
+        <div class="row"><span class="lab fix">解法</span><p>确认板型=ESP32 Dev Module、端口正确、驱动已装；库用库管理器搜索安装；上传时若卡在连接，长按 BOOT 松开后再传；编译错误先读第一行「找不到的文件」对症装库。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    固件路线完 · 想看「每个外设怎么驱动」去 <a href="peripherals.html">外设驱动速查 →</a>；想深挖底层去 <a href="stage4.html">专家阶段</a>。
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

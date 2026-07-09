@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>预备阶段 · 电路基础与 PCB 设计</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">E32</span><div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div></div>
+  <nav>
+    <a href="index.html">总览</a>
+    <a href="stage0.html" class="active">预备</a>
+    <a href="stage1.html">入门</a>
+    <a href="stage2.html">中级</a>
+    <a href="stage3.html">高级</a>
+    <a href="stage4.html">专家</a>
+    <a href="firmware.html">固件</a>
+    <a href="peripherals.html">外设</a>
+    <a href="troubleshoot.html">排错</a>
+  </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="padding:30px 0 10px;">
+    <div class="eyebrow">阶段 00 · 预备（给「零硬件基础」的你）</div>
+    <h1>先补电路与 PCB：让「没摸过电烙铁」也能上手 ESP32</h1>
+    <p class="lead">你只会 Python / Go，没碰过硬件——这完全没问题。但 ESP32 项目里，<strong>认不出电阻、搞不清电源、看不懂 PCB</strong> 会让你卡在第一步。这个预备阶段用画面把<strong>模电/数电直觉</strong>和<strong>PCB 设计</strong>讲透，再进正式四阶段就顺了。</p>
+    <div class="pill-row">
+      <span class="pill accent">2 大模块 · 20 节</span>
+      <span class="pill">~10 小时</span>
+      <span class="pill">电阻/电容/电源/三极管</span>
+      <span class="pill">KiCad 实战</span>
+    </div>
+    <div class="note warn" style="margin-top:18px">
+      <span class="t">这份材料解决你最担心的问题</span>之前你问「光 ESP32、没基础的人能上手吗」。答案是：<strong>能，但必须先过这一关</strong>。把电阻/电容/电源/三极管 + PCB 看懂，后面 29 门课里的接线图、报错、坑点你才会「秒懂」，而不是对着电线发呆。
+    </div>
+  </section>
+
+  <div class="stage-layout">
+    <aside class="toc">
+      <h4>模块一 · 基础电子</h4>
+      <a href="#a1">1 · 电压/电流/电阻</a>
+      <a href="#a2">2 · 电阻与分压器</a>
+      <a href="#a3">3 · 电容（储能/滤波/定时）</a>
+      <a href="#a4">4 · 电源与稳压</a>
+      <a href="#a5">5 · 三极管 / MOSFET 开关</a>
+      <a href="#a6">6 · 数字逻辑基础</a>
+      <a href="#a7">7 · 数制与码制</a>
+      <a href="#a8">8 · 逻辑代数与卡诺图</a>
+      <a href="#a9">9 · 组合逻辑电路</a>
+      <a href="#a10">10 · 时序逻辑与触发器</a>
+      <a href="#a11">11 · 电平兼容与转换</a>
+      <a href="#a12">12 · 去抖与状态机</a>
+      <h4 style="margin-top:22px">模块二 · PCB 设计</h4>
+      <a href="#b1">1 · 为什么走到 PCB</a>
+      <a href="#b2">2 · 工具选型 KiCad/Altium</a>
+      <a href="#b3">3 · 原理图设计</a>
+      <a href="#b4">4 · 封装与布局</a>
+      <a href="#b5">5 · 布线 Routing</a>
+      <a href="#b6">6 · DRC 与 Gerber</a>
+      <a href="#b7">7 · 焊接与贴片</a>
+      <a href="#b8">8 · PCB 常见坑</a>
+    </aside>
+
+    <div>
+
+      <!-- ============ 模块一 ============ -->
+      <h2 style="margin-top:6px">模块一 · 基础电子（模电 / 数电直觉）</h2>
+
+      <!-- A1 -->
+      <article class="course reveal" id="a1">
+        <div class="course-head">
+          <div class="course-idx">A1</div>
+          <div><h3>电压 / 电流 / 电阻：把电想成「水」</h3><div class="sub">时长 ≈ 1h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-a1" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🌊</span>
+          <div class="body"><b>心智图像：</b><strong>电压 = 水压</strong>，<strong>电流 = 水流</strong>，<strong>导线 = 水管</strong>，<strong>电阻 = 收口的水管</strong>。水压越大、管子越粗（电阻越小），流过的水就越多。公式 <code>V = I × R</code> 就是「水压 = 水流 × 水阻」——别背，先记住这张图。</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">电压 V</h4><p style="font-size:14px">单位伏特(V)。电池/USB 给的「推力」。ESP32 用 <b>3.3V</b> 逻辑电平。</p></div>
+          <div class="card"><h4 style="margin-top:0">电流 I</h4><p style="font-size:14px">单位安培(A)。实际流动的「水量」。GPIO 一般最多 ~40mA。</p></div>
+          <div class="card"><h4 style="margin-top:0">电阻 R</h4><p style="font-size:14px">单位欧姆(Ω)。对电流的「阻挡」。串联限流、分压都靠它。</p></div>
+        </div>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 电流像水流</b><span class="hint">点按钮看水(电流)流动</span></div>
+          <div class="demo-body">
+            <canvas data-demo="currentFlow" style="height:240px"></canvas>
+            <div class="controls">
+              <button data-ctrl="toggle">开关: 闭合</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note info"><span class="t">记住一个安全数字</span>ESP32 的 GPIO 是 <b>3.3V</b> 电平，绝不能直接接 5V 信号（会烧）；单个引脚电流别超 ~40mA，整板别超 ~200mA。这些数字后面会反复出现。</div>
+      </article>
+
+      <!-- A2 -->
+      <article class="course reveal" id="a2">
+        <div class="course-head">
+          <div class="course-idx">A2</div>
+          <div><h3>电阻与分压器：用两个电阻「切」出任意电压</h3><div class="sub">时长 ≈ 1h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-a2" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔪</span>
+          <div class="body"><b>心智图像：</b>两个电阻串在一起，像两段不同粗细的水管。中间抽头处的「水压」（电压）取决于两段的比例。这就是<strong>分压器</strong>——电位器、旋钮、模拟量读取全靠它。</div>
+        </div>
+        <p>公式：<code>Vout = Vin × R2 / (R1 + R2)</code>。拖动下面滑块改变比例，看中间抽头电压如何从 0 平滑变到 5V——这正是 ADC（中级课 1）读到的东西。</p>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 分压器</b><span class="hint">拖滑块改 R1/R2 比例</span></div>
+          <div class="demo-body">
+            <canvas data-demo="voltageDivider" style="height:260px"></canvas>
+            <div class="controls">
+              <label>抽头位置 <input type="range" min="5" max="95" value="50" data-ctrl="div-ratio"></label>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note info"><span class="t">电阻上那串色环是啥？</span>色环是电阻的「身份证」：棕红橙黄绿蓝紫灰白黑对应数字 0–9，前两位是有效数字、第三位是倍率。新手不用硬记，用万用表或看包装标签即可。常用限流电阻：220Ω（LED）、10kΩ（上拉）。</div>
+      </article>
+
+      <!-- A3 -->
+      <article class="course reveal" id="a3">
+        <div class="course-head">
+          <div class="course-idx">A3</div>
+          <div><h3>电容：能「存电」的小水箱</h3><div class="sub">时长 ≈ 1.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-a3" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🪣</span>
+          <div class="body"><b>心智图像：</b>电容像一个小水箱——<strong>充电时往里灌水，放电时放出来</strong>。灌/放的速度由「水箱大小(C) × 水管粗细(R)」决定，叫<strong>时间常数 τ = R·C</strong>。所以它天生用来：滤波（ smoothing ）、定时（延时）、储能。</div>
+        </div>
+        <p>点按钮切换充电/放电，看电压沿<strong>指数曲线</strong>爬升或跌落——这就是所有「延时」「RC 振荡」「电源去耦」背后的数学直觉。</p>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 电容充放电</b><span class="hint">点按钮切换充/放电</span></div>
+          <div class="demo-body">
+            <canvas data-demo="capacitor" style="height:280px"></canvas>
+            <div class="controls">
+              <button data-ctrl="cap-mode">切换→放电</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">电容的两个「坑」</span>① <strong>极性</strong>：电解电容（大个、圆柱）有正负极，接反会炸/漏液；陶瓷电容（小黄片）无极性随便接。② <strong>单位</strong>：常用 μF（微法）和 pF（皮法），1F = 1,000,000μF，别看错数量级。</div>
+      </article>
+
+      <!-- A4 -->
+      <article class="course reveal" id="a4">
+        <div class="course-head">
+          <div class="course-idx">A4</div>
+          <div><h3>电源与稳压：给芯片一口「稳」的电</h3><div class="sub">时长 ≈ 1.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-a4" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔋</span>
+          <div class="body"><b>心智图像：</b>芯片像一台精密仪器，只接受稳定的 3.3V。可电池电压会随电量掉（4.2V→3.0V），墙上电源又可能是 5V/9V/12V。于是我们要一个<strong>稳压器</strong>当「稳压水龙头」：不管进来的水压怎么晃，出来的始终是稳稳的 3.3V。</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">LDO 线性稳压</h4><p style="font-size:14px">如 AMS1117-3.3。简单便宜、纹波小，但「压差×电流」都变成热量。适合小电流。</p></div>
+          <div class="card"><h4 style="margin-top:0">开关稳压(DC‑DC)</h4><p style="font-size:14px">如 MP2307。效率高（90%+），大电流不烫，但电路稍复杂、有纹波。电池设备首选。</p></div>
+          <div class="card"><h4 style="margin-top:0">去耦电容</h4><p style="font-size:14px">每个芯片电源脚旁放 0.1μF 陶瓷电容，像「小水箱」吸收瞬间波动，芯片才不抽风。</p></div>
+        </div>
+        <div class="note info"><span class="t">ESP32 开发板已经帮你稳压了</span>你买的 Dev Module 板载了 USB→3.3V 稳压，插 USB 就能跑。但自己做项目/用电池时，必须自己加稳压（见中级课 8 深度睡眠接线图）。</div>
+      </article>
+
+      <!-- A5 -->
+      <article class="course reveal" id="a5">
+        <div class="course-head">
+          <div class="course-idx">A5</div>
+          <div><h3>三极管 / MOSFET：用小信号「遥控」大电流</h3><div class="sub">时长 ≈ 1.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-a5" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🎚️</span>
+          <div class="body"><b>心智图像：</b>三极管/MOSFET 像一个<strong>由小水流控制的水闸</strong>。基极/栅极只来一点点电流（信号），就能决定「大水流」（主回路）通不通、通多大。这就是「用小控制大」——LED 调光、电机驱动、继电器全靠它。</div>
+        </div>
+        <p>点按钮给基极通电，看集电极那一路大电流导通、LED 亮起。GPIO 引脚「力气小」，正是靠它才能驱动灯、电机、蜂鸣器。</p>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 三极管开关</b><span class="hint">点按钮给基极通电</span></div>
+          <div class="demo-body">
+            <canvas data-demo="transistor" style="height:280px"></canvas>
+            <div class="controls">
+              <button data-ctrl="tr-base">基极:断电(截止)</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">三极管 vs MOSFET 怎么选？</span>小信号/小电流用 <b>三极管(BJT)</b> 简单；驱动电机、大电流、省电用 <b>MOSFET</b>（电压控制、几乎不耗栅极电流）。ESP32 的 GPIO 是 3.3V，选「逻辑电平 MOSFET」（如 IRLZ44N 不够，需 AO3400/IRF3708 类）才能完全导通。</div>
+      </article>
+
+      <!-- A6 -->
+      <article class="course reveal" id="a6">
+        <div class="course-head">
+          <div class="course-idx">A6</div>
+          <div><h3>数字逻辑基础：0 和 1 怎么「算」</h3><div class="sub">时长 ≈ 1.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-a6" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔢</span>
+          <div class="body"><b>心智图像：</b>数字世界只有两种状态：<strong>0 = 关/低电平(≈0V)，1 = 开/高电平(≈3.3V)</strong>。芯片内部亿万个「开关」按规则组合，就构成了「与/或/非」这些逻辑门——这正是你写 <code>if (a and b)</code> 的硬件根基。</div>
+        </div>
+        <p>三个最基础的逻辑门（输入 A、B，输出 Y）：</p>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">与 AND</h4><p style="font-size:14px">Y = A 且 B。两者都 1 才 1。<br><code>0·0=0 0·1=0 1·1=1</code></p></div>
+          <div class="card"><h4 style="margin-top:0">或 OR</h4><p style="font-size:14px">Y = A 或 B。任一为 1 即 1。<br><code>0+0=0 0+1=1 1+1=1</code></p></div>
+          <div class="card"><h4 style="margin-top:0">非 NOT</h4><p style="font-size:14px">Y = 取反。0→1，1→0。<br><code>¬0=1 ¬1=0</code></p></div>
+        </div>
+        <div class="note info"><span class="t">为什么这跟你有关？</span>GPIO 输入读到的就是 0/1；I2C、SPI、串口都是「按时钟把 0/1 一位位传」；中断是「某个脚从 0 变 1 就打断」。懂了 0/1，所有通信协议都只是「约定好的 0/1 顺序」。</div>
+      </article>
+
+      <div class="note info" style="margin:22px 0 4px">
+        <span class="t">数电模块从这里开始</span>上面只是「开胃」。真正的<strong>数字电路（数电）</strong>要回答两件大事：① <b>怎么表示和处理数字</b>（数制、布尔代数、组合逻辑）；② <b>怎么记住和按节奏处理数字</b>（触发器、计数器、时钟、状态机）。下面 6 节把这两件事讲透，并配可交互演示——它们是理解「ESP32 为什么能跑程序、协议为什么不会乱」的底层基础。
+      </div>
+
+      <!-- A7 -->
+      <article class="course reveal" id="a7">
+        <div class="course-head">
+          <div class="course-idx">A7</div>
+          <div><h3>数制与码制：芯片只认 0/1，我们帮它「翻译」</h3><div class="sub">时长 ≈ 1h · 预备 · 数电</div></div>
+          <button class="check-btn" data-course="stage0-a7" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔟</span>
+          <div class="body"><b>心智图像：</b>电路只有「高/低」两种电平，所以芯片内部全是<strong>二进制(0/1)</strong>。但让人直接写一串 0101 太反人类，于是我们用<strong>十六进制</strong>把每 4 位压成 1 个字符，用 <strong>BCD</strong> 让十进制数字直接对应 4 位（方便数码管显示），用 <strong>格雷码</strong> 让相邻数值只差 1 位（防止编码器读数跳变出错）。</div>
+        </div>
+        <p>点下面的格子切换 0/1，或拖滑块设十进制值，实时看它在四种表示法下的样子——这正是你以后读寄存器、看通信报文时天天打交道的东西。</p>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 数制转换器</b><span class="hint">点格子或拖滑块</span></div>
+          <div class="demo-body">
+            <canvas data-demo="binConv" style="height:300px"></canvas>
+            <div class="controls">
+              <label>十进制 <input type="range" min="0" max="255" value="0" data-ctrl="bin-val"></label>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note info"><span class="t">为什么 0x 开头？</span>代码里 <code>0x1A</code> 表示十六进制 1A = 二进制 0001 1010 = 十进制 26。ESP32 的地址、颜色值、寄存器都常用十六进制写，一眼看位数比十进制清楚。</div>
+      </article>
+
+      <!-- A8 -->
+      <article class="course reveal" id="a8">
+        <div class="course-head">
+          <div class="course-idx">A8</div>
+          <div><h3>逻辑代数与卡诺图：用「圈格子」化简电路</h3><div class="sub">时长 ≈ 1.5h · 预备 · 数电</div></div>
+          <button class="check-btn" data-course="stage0-a8" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🧮</span>
+          <div class="body"><b>心智图像：</b>逻辑代数就是把「与或非」当加减法来算。核心武器是<strong>德摩根定律</strong>（「与非」可变成「或非」、反之），用来把电路改成只用一种门。再复杂，也能用<strong>卡诺图</strong>——把真值表画成方格，把相邻的 1 圈成矩形，矩形越大项越少，电路就越省。</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">基本运算</h4><p style="font-size:14px">与·或·非 + 异或 XOR（不同为 1）。<code>A⊕B</code> 常用于奇偶校验、加法。</p></div>
+          <div class="card"><h4 style="margin-top:0">德摩根定律</h4><p style="font-size:14px"><code>¬(A·B)=¬A+¬B</code><br><code>¬(A+B)=¬A·¬B</code>。门电路互转的钥匙。</p></div>
+          <div class="card"><h4 style="margin-top:0">卡诺图化简</h4><p style="font-size:14px">圈 2/4/8 个相邻的 1 → 消去互补变量，得到最简与或式。</p></div>
+        </div>
+        <p>点「示例」载入「多数表决」（3 个输入里 ≥2 个为 1 就输出 1），看卡诺图怎么圈出 <code>F = AB + BC + AC</code>；也可以自己点格子搭真值表。</p>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 卡诺图</b><span class="hint">点格子设 1 / 看化简</span></div>
+          <div class="demo-body">
+            <canvas data-demo="karnaugh" style="height:280px"></canvas>
+            <div class="controls">
+              <button data-ctrl="k-ex">示例: 多数表决</button>
+              <button data-ctrl="k-clr">清空</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">为什么数电对你重要？</span>ESP32 里 SPI/I2C/定时器的控制逻辑，本质都是组合+时序电路。你写 <code>if (x & 0x80)</code> 时，芯片内部正在做一位位的与/或/移位。懂这些，看寄存器手册不再一头雾水。</div>
+      </article>
+
+      <!-- A9 -->
+      <article class="course reveal" id="a9">
+        <div class="course-head">
+          <div class="course-idx">A9</div>
+          <div><h3>组合逻辑电路：不记忆的「即时计算」</h3><div class="sub">时长 ≈ 1.5h · 预备 · 数电</div></div>
+          <button class="check-btn" data-course="stage0-a9" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">⚡</span>
+          <div class="body"><b>心智图像：</b>组合逻辑像一台<strong>纯函数计算器</strong>——输出只取决于「此刻」的输入，不记得过去（没有时钟、没有记忆）。几个最常用的积木：</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">译码器（如 3-8）</h4><p style="font-size:14px">3 根地址线 → 8 根里选 1 根拉高。用途：扩展 IO、点亮数码管某一位、片选。</p></div>
+          <div class="card"><h4 style="margin-top:0">多路选择器 MUX</h4><p style="font-size:14px">像「单刀多掷开关」：用选择线从多路输入里挑一路输出。软件里的 <code>switch</code> 的硬件版。</p></div>
+          <div class="card"><h4 style="margin-top:0">加法器</h4><p style="font-size:14px">半加器(无进位)/全加器(带进位) 串起来就是 CPU 里的 ALU 做加减法。</p></div>
+        </div>
+        <div class="table-wrap">
+          <table class="cmp">
+            <thead><tr><th>模块</th><th>输入</th><th>输出</th><th>你会在哪见到</th></tr></thead>
+            <tbody>
+              <tr><td>3-8 译码器 (74HC138)</td><td>3 位地址 + 使能</td><td>8 路中 1 路有效</td><td>用 3 个 GPIO 控制 8 个 LED/继电器</td></tr>
+              <tr><td>2-1 MUX</td><td>2 路数据 + 1 选择</td><td>选中那一路</td><td>传感器通道切换</td></tr>
+              <tr><td>4 位加法器</td><td>两个 4 位数 + 进位</td><td>和 + 进位</td><td>计数、测距、PWM 计算</td></tr>
+              <tr><td>比较器</td><td>两个 N 位数</td><td>大于/等于/小于</td><td>温控阈值判断</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note info"><span class="t">和 ESP32 的关系</span>这些芯片现在大多「集成进 MCU 内部」了，但理解它们，你就懂了为什么 ESP32 能用几个引脚「扫」几十个按键、驱动多位数码管——背后就是译码/扫描这类组合逻辑。</div>
+      </article>
+
+      <!-- A10 -->
+      <article class="course reveal" id="a10">
+        <div class="course-head">
+          <div class="course-idx">A10</div>
+          <div><h3>时序逻辑与触发器：让电路「记得」和「按拍走」</h3><div class="sub">时长 ≈ 1.5h · 预备 · 数电</div></div>
+          <button class="check-btn" data-course="stage0-a10" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">⏱️</span>
+          <div class="body"><b>心智图像：</b>组合逻辑不记事，<strong>时序逻辑会记事</strong>。核心元件是<strong>触发器(Flip-Flop)</strong>——一个 1 位记忆单元，在时钟「滴答」的瞬间把输入锁存下来。把多个触发器并排就是<strong>寄存器</strong>，串起来就是<strong>计数器</strong>，计数器再分频就得到更慢的时钟。</div>
+        </div>
+        <p>下图的 D 触发器只在 <b>CLK 上升沿</b>采样 D。注意中间那几根「毛刺」——D 在时钟之外乱跳，Q 根本不理它，只在上升沿「咔」地抓一下。这正是「边沿触发」的精髓，也是硬件去抖的基础。</p>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · D 触发器时序</b><span class="hint">看 Q 如何只在上升沿更新</span></div>
+          <div class="demo-body">
+            <canvas data-demo="dff" style="height:260px"></canvas>
+            <div class="controls">
+              <button data-ctrl="pause">暂停</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">触发器 D / T / JK</h4><p style="font-size:14px">D：存 1 位；T：每拍翻转（做分频）；JK：功能最全。ESP32 内部成千上万。</p></div>
+          <div class="card"><h4 style="margin-top:0">计数器 = 分频器</h4><p style="font-size:14px">n 级二进制计数器把时钟 ÷2ⁿ。进 <code>40MHz</code> 出 <code>40/2ⁿ MHz</code>——PWM、定时全靠它。</p></div>
+          <div class="card"><h4 style="margin-top:0">寄存器</h4><p style="font-size:14px">8/16/32 个 D 触发器并排 = 一个字节/字的暂存。你写的变量最终落在这样的寄存器里。</p></div>
+        </div>
+        <div class="note warn"><span class="t">时钟是数电的「心跳」</span>没有时钟，时序电路就是一团乱麻。ESP32 的主频（80/160/240MHz）就是这块「心跳」——所有时序逻辑都跟着它走。下一节会看到，电平不对时这颗心跳也会出问题。</div>
+      </article>
+
+      <!-- A11 -->
+      <article class="course reveal" id="a11">
+        <div class="course-head">
+          <div class="course-idx">A11</div>
+          <div><h3>逻辑家族与电平兼容：3.3V 碰到 5V 会怎样</h3><div class="sub">时长 ≈ 1h · 预备 · 数电</div></div>
+          <button class="check-btn" data-course="stage0-a11" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔌</span>
+          <div class="body"><b>心智图像：</b>同一句「高电平」，不同家族理解不一样。老器件多 <strong>5V(TTL/CMOS)</strong>，ESP32 是 <strong>3.3V</strong>。就像两个人，一个说「响」指 5 分贝、一个指 3 分贝——直接连可能<strong>听不懂甚至吵坏</strong>。于是需要<strong>电平转换</strong>当翻译。</div>
+        </div>
+        <p>点下面四个按钮，看 3.3V 和 5V 互连的四种情形。重点记两条铁律：<b>5V 输出绝不能直接进 3.3V 输入（会烧）</b>；<b>3.3V 输出驱动 5V CMOS 可能「读不准」</b>。</p>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 电平兼容性</b><span class="hint">点按钮切换连接方案</span></div>
+          <div class="demo-body">
+            <canvas data-demo="levelShift" style="height:240px"></canvas>
+            <div class="controls">
+              <button data-ctrl="ls-A">5V→3.3V 直连</button>
+              <button data-ctrl="ls-B">5V→3.3V 分压</button>
+              <button data-ctrl="ls-C">3.3V→5V 直连</button>
+              <button data-ctrl="ls-D">3.3V→5V 转换芯片</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">输入阈值 V<sub>IH</sub>/V<sub>IL</sub></h4><p style="font-size:14px">高于 V<sub>IH</sub> 算 1，低于 V<sub>IL</sub> 算 0。中间是「不确定区」——这正是施密特触发要解决的。</p></div>
+          <div class="card"><h4 style="margin-top:0">施密特触发</h4><p style="font-size:14px">上升/下降用不同阈值(迟滞)，把缓慢或带噪的信号「整形」成干净方波。按键、传感器常用。</p></div>
+          <div class="card"><h4 style="margin-top:0">电平转换方案</h4><p style="font-size:14px">单向：电阻分压(降压)/晶体管(升压)。双向：MOSFET 或 TXS0108 专用芯片。</p></div>
+        </div>
+        <div class="note warn"><span class="t">实战红线</span>ESP32 几乎所有 GPIO 都<strong>不耐 5V</strong>。接 Arduino 老模块、5V 传感器时，要么选「3.3V 兼容」的，要么加电平转换。唯一例外是部分 ADC 脚可容忍更高电压（看手册），但稳妥起见一律转换。</div>
+      </article>
+
+      <!-- A12 -->
+      <article class="course reveal" id="a12">
+        <div class="course-head">
+          <div class="course-idx">A12</div>
+          <div><h3>去抖与状态机：让「乱按的键」变成「确定的行为」</h3><div class="sub">时长 ≈ 1.5h · 预备 · 数电</div></div>
+          <button class="check-btn" data-course="stage0-a12" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🎛️</span>
+          <div class="body"><b>心智图像：</b>机械按键按下/松开时金属触点会「弹几下」，产生一串真假难辨的抖动。软件里就是「误触发多次」。<strong>去抖</strong>就是滤掉这串抖动；而<strong>状态机(FSM)</strong>是把「一连串输入 → 该干嘛」写成一张清晰的「状态转移图」，避免 if/else 嵌套成乱麻。</div>
+        </div>
+        <p>左边演示：同一个按键，原始信号抖了 5 下，软件若直接数会当成「按了 5 次」；去抖后只判定 1 次有效按下。右边是一个最小状态机——「智能灯」，每按一下在 关→微亮→全亮 间循环。</p>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 按键去抖</b><span class="hint">点按钮重放一次按下/松开</span></div>
+          <div class="demo-body">
+            <canvas data-demo="debounce" style="height:220px"></canvas>
+            <div class="controls">
+              <button data-ctrl="db-press">重放一次按键</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 状态机 FSM（摩尔机）</b><span class="hint">点按钮触发状态转移</span></div>
+          <div class="demo-body">
+            <canvas data-demo="fsm" style="height:260px"></canvas>
+            <div class="controls">
+              <button data-ctrl="fsm-press">按一下</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">软件去抖</h4><p style="font-size:14px">检测到变化后延时 ~20ms 再读一次，稳定才确认。ESP32 可用定时器/中断实现。</p></div>
+          <div class="card"><h4 style="margin-top:0">硬件去抖</h4><p style="font-size:14px">RC 滤波 + 施密特触发，或 D 触发器链（见 A10）。按键旁常放 0.1μF 电容。</p></div>
+          <div class="card"><h4 style="margin-top:0">摩尔 vs 米利</h4><p style="font-size:14px">摩尔：输出只由状态定（本例）；米利：输出还看当前输入。协议解析多用米利。</p></div>
+        </div>
+        <div class="note info"><span class="t">数电全貌小结</span>从「0/1 怎么表示」(A7) → 「怎么算」(A8 布尔/卡诺图、A9 组合逻辑) → 「怎么记和按拍走」(A10 触发器/计数器、A11 电平) → 「怎么稳住和编排行为」(A12 去抖/状态机)，这就是数字电路的完整骨架。带着它回看四阶段，你会明白：<strong>ESP32 跑的每行代码，最终都落在这套 0/1 的时序世界里</strong>。</div>
+      </article>
+
+      <!-- ============ 模块二 ============ -->
+      <h2 style="margin-top:46px">模块二 · PCB 设计（从面包板到可量产）</h2>
+
+      <!-- B1 -->
+      <article class="course reveal" id="b1">
+        <div class="course-head">
+          <div class="course-idx">B1</div>
+          <div><h3>为什么要从面包板走到 PCB</h3><div class="sub">时长 ≈ 0.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-b1" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🧱</span>
+          <div class="body"><b>心智图像：</b>面包板是「草稿纸」——跳线一碰就松、体积大、没法带出门。PCB 是「定稿的印刷品」：所有连线蚀刻在板子里，元件焊死，<strong>稳定、小巧、可量产</strong>。做完原型想做成「能送人的产品」，必然要走这一步。</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">面包板阶段</h4><p style="font-size:14px">验证想法、快速改线。对应前面四阶段的所有实验。</p></div>
+          <div class="card"><h4 style="margin-top:0">洞洞板/万用板</h4><p style="font-size:14px">手工焊接过渡，适合一次性小作品。</p></div>
+          <div class="card"><h4 style="margin-top:0">PCB 打样</h4><p style="font-size:14px">画好文件→发给打样厂(嘉立创等)→几天收到成品板。</p></div>
+        </div>
+      </article>
+
+      <!-- B2 -->
+      <article class="course reveal" id="b2">
+        <div class="course-head">
+          <div class="course-idx">B2</div>
+          <div><h3>工具选型：KiCad / Altium / Cadence</h3><div class="sub">时长 ≈ 0.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-b2" title="标记完成">✓</button>
+        </div>
+        <div class="three">
+          <div class="card hoverable"><h4 style="margin-top:0">KiCad ⭐ 推荐</h4><p style="font-size:14px"><b>免费开源</b>、跨平台、功能完整（原理图→布局→布线→3D 预览→Gerber）。社区活跃、教程多。<strong>新手无脑选它。</strong></p></div>
+          <div class="card"><h4 style="margin-top:0">Altium Designer</h4><p style="font-size:14px">商业软件，界面强、企业常用，但<strong>授权贵（年费上万）</strong>。找工作加分，个人学习不划算。</p></div>
+          <div class="card"><h4 style="margin-top:0">Cadence / Allegro</h4><p style="font-size:14px">企业级、超复杂板（手机/服务器）专用。学习曲线陡，初学者一般用不到。</p></div>
+        </div>
+        <div class="note info"><span class="t">结论</span>个人学习/创业/开源项目，<strong>KiCad 一条路走到底</strong>。下面所有步骤都按 KiCad 讲，但你理解的概念（封装、网络、DRC）在任意软件里通用。</div>
+      </article>
+
+      <!-- B3 -->
+      <article class="course reveal" id="b3">
+        <div class="course-head">
+          <div class="course-idx">B3</div>
+          <div><h3>原理图设计（Schematic）：先画「谁连谁」</h3><div class="sub">时长 ≈ 1.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-b3" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">✏️</span>
+          <div class="body"><b>心智图像：</b>原理图就是「接线图的正式版」——用标准符号画元件，用<strong>网络标签(Net)</strong>标明哪根线连哪根，不用真的画一根根线。相同 Net 名字 = 电气连通（相当于面包板上同一行）。</div>
+        </div>
+        <p>KiCad 步骤：① 放元件（ESP32 模块、电阻、电容、连接器）；② 给每个元件指定<strong>封装(Footprint)</strong>（它将来在板子上的真实焊盘样子）；③ 连线 / 打 Net 标签；④ 跑<strong>电气规则检查(ERC)</strong>。</p>
+        <svg viewBox="0 0 600 200" style="width:100%;max-width:600px;margin:10px auto;display:block" role="img" aria-label="原理图示意">
+          <rect x="10" y="20" width="130" height="70" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <text x="75" y="58" text-anchor="middle" fill="var(--text)" font-size="13">ESP32</text>
+          <text x="75" y="100" text-anchor="middle" fill="var(--text-soft)" font-size="11">GPIO2 ─ Net:LED</text>
+          <path d="M140 55 L210 55" stroke="var(--accent)" stroke-width="2"/>
+          <!-- 电阻符号 -->
+          <path d="M210 55 l12 -8 l12 16 l12 -16 l12 16 l12 -8" fill="none" stroke="var(--text-soft)" stroke-width="2"/>
+          <text x="248" y="40" text-anchor="middle" fill="var(--text-soft)" font-size="11">220Ω</text>
+          <path d="M270 55 L330 55" stroke="var(--accent)" stroke-width="2"/>
+          <!-- LED 符号 -->
+          <path d="M330 47 L342 55 L330 63 Z" fill="var(--accent)"/>
+          <line x1="342" y1="47" x2="342" y2="63" stroke="var(--accent)" stroke-width="2"/>
+          <line x1="342" y1="55" x2="360" y2="55" stroke="var(--accent)" stroke-width="2"/>
+          <text x="345" y="80" text-anchor="middle" fill="var(--text-soft)" font-size="11">LED</text>
+          <path d="M360 55 L420 55" stroke="var(--wire)" stroke-width="2"/>
+          <text x="390" y="44" text-anchor="middle" fill="var(--wire)" font-size="11">Net:GND</text>
+          <rect x="430" y="40" width="120" height="30" rx="5" fill="none" stroke="var(--wire)" stroke-width="2"/>
+          <text x="490" y="60" text-anchor="middle" fill="var(--text)" font-size="12">GND 符号</text>
+        </svg>
+        <div class="note info"><span class="t">原理图 ≠ 板子样子</span>原理图只表达「电气连接关系」，不表达元件摆哪里。把位置和走线留给下一步「布局布线」。</div>
+      </article>
+
+      <!-- B4 -->
+      <article class="course reveal" id="b4">
+        <div class="course-head">
+          <div class="course-idx">B4</div>
+          <div><h3>封装与布局（Layout）：把元件摆上板子</h3><div class="sub">时长 ≈ 1.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-b4" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">📐</span>
+          <div class="body"><b>心智图像：</b>布局就是「在板子画布上摆家具」——把元件按信号流向、散热、接口方便度摆好。布局好坏直接决定后面好不好走线、板子稳不稳、好不好用。</div>
+        </div>
+        <ul class="clean">
+          <li><b>接口靠边：</b>USB、排针、按键放板子边缘，方便插拔按压。</li>
+          <li><b>电源/晶振近一点：</b>稳压芯片、晶振尽量靠近用它们的 IC，线短噪声小。</li>
+          <li><b>发热元件留空：</b>稳压器、驱动芯片周围留散热空间，别紧贴塑料壳。</li>
+          <li><b>天线净空：</b>ESP32 天线下方/周围<strong>不要走线、不要铺铜、不要放金属</strong>，否则 Wi‑Fi 信号废一半。</li>
+        </ul>
+        <svg viewBox="0 0 600 180" style="width:100%;max-width:600px;margin:10px auto;display:block" role="img" aria-label="布局示意">
+          <rect x="20" y="20" width="560" height="140" rx="10" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <rect x="60" y="55" width="90" height="70" rx="4" fill="rgba(42,157,143,.15)" stroke="var(--teal)"/>
+          <text x="105" y="95" text-anchor="middle" fill="var(--text)" font-size="11">ESP32</text>
+          <rect x="200" y="60" width="50" height="30" rx="3" fill="rgba(238,108,77,.15)" stroke="var(--accent)"/>
+          <text x="225" y="80" text-anchor="middle" fill="var(--text)" font-size="10">稳压</text>
+          <rect x="300" y="60" width="40" height="20" rx="3" fill="rgba(154,140,255,.15)" stroke="var(--purple)"/>
+          <text x="320" y="74" text-anchor="middle" fill="var(--text)" font-size="9">晶振</text>
+          <rect x="420" y="55" width="120" height="28" rx="4" fill="none" stroke="var(--wire)"/>
+          <text x="480" y="73" text-anchor="middle" fill="var(--text-soft)" font-size="10">USB 接口(靠边)</text>
+          <circle cx="500" cy="40" r="16" fill="rgba(90,169,230,.12)" stroke="var(--blue)"/>
+          <text x="500" y="44" text-anchor="middle" fill="var(--text)" font-size="9">天线</text>
+        </svg>
+      </article>
+
+      <!-- B5 -->
+      <article class="course reveal" id="b5">
+        <div class="course-head">
+          <div class="course-idx">B5</div>
+          <div><h3>布线（Routing）：把连线「画」进板子</h3><div class="sub">时长 ≈ 1.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-b5" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🧵</span>
+          <div class="body"><b>心智图像：</b>布线就是「在板子上画铜箔走线」把原理图里同 Net 的脚连起来。双面板的<strong>底层(Bottom)和顶层(Top)</strong>都能走线，中间夹一层「地平面」当公共地，用<strong>过孔(Via)</strong>打通两层。</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">信号线</h4><p style="font-size:14px">细一点(0.2–0.3mm)即可，尽量短、少拐直角(用 45°)。</p></div>
+          <div class="card"><h4 style="margin-top:0">电源线</h4><p style="font-size:14px">要粗(0.5–1mm+)，载流才够、压降才小。</p></div>
+          <div class="card"><h4 style="margin-top:0">地平面</h4><p style="font-size:14px">整层铺铜当 GND，信号回流路径短、抗干扰强。</p></div>
+        </div>
+        <div class="note warn"><span class="t">新手布线三不要</span>① 不要天线下方/周围走线铺铜；② 不要电源线和信号线长距离平行（会串扰）；③ 不要线宽太细载不动电流（烧断/过热）。</div>
+      </article>
+
+      <!-- B6 -->
+      <article class="course reveal" id="b6">
+        <div class="course-head">
+          <div class="course-idx">B6</div>
+          <div><h3>DRC 与 Gerber：检查 + 出片给工厂</h3><div class="sub">时长 ≈ 1h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-b6" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">📤</span>
+          <div class="body"><b>心智图像：</b>DRC(设计规则检查) 是「拼写检查」——自动找出线间距不够、悬空脚、短路等错误。Gerber 是「印刷底片」——工厂拿它直接在板上蚀刻铜箔。你画完板子，导出 Gerber 压缩包发给打样厂即可。</div>
+        </div>
+        <ul class="clean">
+          <li><b>跑 DRC：</b>设好最小线宽/线距（如 6mil），确认 0 错误再出片。</li>
+          <li><b>导出 Gerber：</b>KiCad「绘图」选各层（Top/Bottom/Copper、Silk 丝印、Mask 阻焊、Edge 板框），含 Drill 钻孔文件。</li>
+          <li><b>打包下单：</b>嘉立创/捷配等，传 zip，选板材/颜色/数量，几十元起、2–3 天到手。</li>
+        </ul>
+        <div class="note info"><span class="t">第一次打样建议</span>板子做小一点（10×10cm 内常免费/极便宜）、数量 5–10 片，先用洞洞板验证过电路再投板，避免「板子到了发现原理图错了」。</div>
+      </article>
+
+      <!-- B7 -->
+      <article class="course reveal" id="b7">
+        <div class="course-head">
+          <div class="course-idx">B7</div>
+          <div><h3>焊接与贴片：把元件「焊死」在板上</h3><div class="sub">时长 ≈ 1h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-b7" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔥</span>
+          <div class="body"><b>心智图像：</b>焊锡像「导电的胶水」——加热熔化后裹住引脚和焊盘，冷却就把两者牢牢连上并导通。手焊用烙铁+锡线；量产用钢网+锡膏+回流焊炉。</div>
+        </div>
+        <div class="three">
+          <div class="card"><h4 style="margin-top:0">直插元件</h4><p style="font-size:14px">电阻/排针，脚穿过板子，背面焊接。新手友好。</p></div>
+          <div class="card"><h4 style="margin-top:0">贴片 SMD</h4><p style="font-size:14px">0805 电阻电容可手焊；QFP 芯片用「拖焊」；BGA 必须回流焊。</p></div>
+          <div class="card"><h4 style="margin-top:0">回流焊</h4><p style="font-size:14px">钢网刮锡膏→贴元件→加热台/烤箱熔化。做多片才值。</p></div>
+        </div>
+        <div class="note warn"><span class="t">焊接安全</span>烙铁 350°C 左右，<strong>先加热焊盘再送锡</strong>，避免虚焊；ESP32 模块尽量买「已焊好排针」的 Dev Module，别自己焊 QFP。</div>
+      </article>
+
+      <!-- B8 -->
+      <article class="course reveal" id="b8">
+        <div class="course-head">
+          <div class="course-idx">B8</div>
+          <div><h3>PCB 常见坑（提前避雷）</h3><div class="sub">时长 ≈ 0.5h · 预备</div></div>
+          <button class="check-btn" data-course="stage0-b8" title="标记完成">✓</button>
+        </div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · PCB 设计常见故障</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>板子回来不通电 / 芯片发烫 / Wi‑Fi 极弱 / 偶尔复位。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 线宽太细载流不足烧断；② 电源脚没放去耦电容导致芯片抽风；③ 天线下方铺铜/走线屏蔽信号；④ 封装画错（1:1 镜像、焊盘间距不对）元件焊不上；⑤ GND 没连成整片导致回流差。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>电源/地加粗(≥0.5mm)；每片 IC 电源脚旁放 0.1μF 陶瓷电容；天线区净空；打样前用 ERC+DRC 清零错误并双击核对封装；整板铺地铜并保持低阻抗回路。</p></div>
+          </div>
+        </div>
+        <p>🎉 <b>预备阶段完成！</b>你现在能看懂电阻/电容/电源/三极管，也能把想法变成一块真正的 PCB。回去从<strong>入门阶段</strong>开始，那些接线图和报错你都会觉得「哦，就这」。进阶时还可随时回看<strong>固件开发</strong>与<strong>外设驱动速查</strong>。</p>
+      </article>
+
+    </div>
+  </div>
+
+  <footer class="foot">
+    预备阶段完 · 下一站：<a href="stage1.html">入门阶段 →</a> 点亮第一颗 LED。
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+<script src="assets/demos.js"></script>
+<script src="assets/wiring.js"></script>
+</body>
+</html>

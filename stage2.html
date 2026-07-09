@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中级阶段 · ESP32 学习路线</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">E32</span><div>ESP32 学习路线<br><small>从零基础到专家 · 直觉优先</small></div></div>
+  <nav>
+    <a href="index.html">总览</a>
+    <a href="stage0.html">预备</a>
+    <a href="stage1.html">入门</a>
+    <a href="stage2.html" class="active">中级</a>
+    <a href="stage3.html">高级</a>
+    <a href="stage4.html">专家</a>
+    <a href="firmware.html">固件</a>
+    <a href="peripherals.html">外设</a>
+    <a href="troubleshoot.html">排错</a>
+  </nav>
+  <button class="theme-btn" data-theme-set="light" title="亮色">☀</button>
+  <button class="theme-btn" data-theme-set="dark" title="暗色">🌙</button>
+  <button class="theme-btn" data-theme-set="system" title="跟随系统">🖥</button>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="padding:30px 0 10px;">
+    <div class="eyebrow">阶段 02 / 04</div>
+    <h1>中级阶段：让板子「活」起来</h1>
+    <p class="lead">目标：做出<strong>真正能用、能上网、能显示、能省电</strong>的小设备。你会第一次体会到「物联网」的手感——手机控制灯、温湿度看板、电池供电几个月。</p>
+    <div class="pill-row">
+      <span class="pill accent">8 门课</span>
+      <span class="pill">~16.5 小时</span>
+      <span class="pill">PWM / ADC / WiFi</span>
+      <span class="pill">传感器 + 省电</span>
+    </div>
+  </section>
+
+  <div class="stage-layout">
+    <aside class="toc">
+      <h4>本阶段目录</h4>
+      <a href="#c1">1 · 模拟与 ADC</a>
+      <a href="#c2">2 · PWM 调光</a>
+      <a href="#c3">3 · 连接 Wi‑Fi</a>
+      <a href="#c4">4 · Web 服务器</a>
+      <a href="#c5">5 · I2C 与 OLED</a>
+      <a href="#c6">6 · 传感器实战</a>
+      <a href="#c7">7 · 定时器与中断</a>
+      <a href="#c8">8 · 深度睡眠省电</a>
+    </aside>
+
+    <div>
+
+      <!-- 课程 1 -->
+      <article class="course reveal" id="c1">
+        <div class="course-head">
+          <div class="course-idx">1</div>
+          <div><h3>模拟信号与 ADC：温度是连续的，芯片只能读数字</h3><div class="sub">时长 ≈ 2h · 中级阶段</div></div>
+          <button class="check-btn" data-course="stage2-c1" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🌡️</span>
+          <div class="body"><b>心智图像：</b>真实世界是<strong>连续的水流</strong>（温度、光线、声音都是慢慢变的）；而芯片是个「只会数整数」的人。ADC（模数转换）就是个<strong>翻译官</strong>：它每隔一小会儿看一眼水流大小，记成一个整数（ESP32 是 0~4095）。采得越密、刻度越细，翻译越准。</div>
+        </div>
+        <p>GPIO 数字脚只能读 0/1，但 ESP32 有一批带 ADC 的脚（标了 ADC1/ADC2），能把 0~3.3V 的模拟电压翻译成 12 位数字（0~4095）。下面用旋钮（电位器）做例子：拧动它，电压连续变化，ADC 把它变成数字。</p>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> ADC, Pin
+adc = ADC(Pin(<span class="num">34</span>))          <span class="cm"># GPIO34 接电位器中脚</span>
+adc.atten(ADC.ATTN_11DB)        <span class="cm"># 量程扩到 0~3.3V</span>
+adc.width(ADC.WIDTH_12BIT)       <span class="cm"># 12 位: 0~4095</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    raw = adc.read()              <span class="cm"># 0~4095</span>
+    volt = raw / <span class="num">4095</span> * <span class="num">3.3</span>   <span class="cm"># 换算成电压</span>
+    print(<span class="str">"原始:"</span>, raw, <span class="str">"电压:"</span>, round(volt,<span class="num">2</span>), <span class="str">"V"</span>)
+    time.sleep(<span class="num">0.3</span>)</code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · ADC 采样与量化</b><span class="hint">拖滑块改采样率</span></div>
+          <div class="demo-body">
+            <canvas data-demo="adc" style="height:240px"></canvas>
+            <div class="controls">
+              <label>采样率 <input type="range" min="2" max="20" value="6" data-ctrl="rate"> Hz</label>
+              <button class="ctrl" data-ctrl="pause">暂停</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="wiring" data-wiring="adc"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · ADC 读数异常</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>读数一直卡在 4095 或 0，或者数值疯狂乱跳。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 电位器中脚没接到 ADC 脚；② 没设 <code>atten(11DB)</code>，量程只有 0~1V；③ 电源噪声 / 接触不良。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>确认中脚接 GPIO34；<code>adc.atten(ADC.ATTN_11DB)</code> 扩到 0~3.3V；软件上多次采样取平均；电源端加个 0.1µF 去耦电容。</p></div>
+          </div>
+        </div>
+        <div class="note info"><span class="t">接线的三根线</span>电位器：左脚接 3V3，右脚接 GND，<b>中脚（滑臂）接 ADC 脚（如 GPIO34）</b>。拧动时中脚在两个极端之间分压。</div>
+      </article>
+
+      <!-- 课程 2 -->
+      <article class="course reveal" id="c2">
+        <div class="course-head">
+          <div class="course-idx">2</div>
+          <div><h3>PWM：用「快速开关」模拟调光，做呼吸灯</h3><div class="sub">时长 ≈ 2h · 中级阶段</div></div>
+          <button class="check-btn" data-course="stage2-c2" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔆</span>
+          <div class="body"><b>心智图像：</b>LED 只能「全亮」或「全灭」，没法直接调亮度。但如果你<strong>一秒里开关几千次</strong>，亮的时间占 70%、灭的占 30%，人眼就把平均看成「七成亮」。这个「亮的时间占比」叫<strong>占空比（Duty Cycle）</strong>。PWM 就是自动帮你高速开关的那个机构。</div>
+        </div>
+        <p>PWM（脉冲宽度调制）几乎是控制亮度、电机转速、舵机角度的<strong>万能钥匙</strong>。MicroPython 里用 <code>machine.PWM</code>，设置频率（每秒开关多少次）和占空比（0=全灭，最大值=全亮）。</p>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> PWM, Pin
+<span class="kw">import</span> time
+
+pwm = PWM(Pin(<span class="num">2</span>))      <span class="cm"># 在 GPIO2 上产生 PWM</span>
+pwm.freq(<span class="num">1000</span>)            <span class="cm"># 每秒开关 1000 次</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="kw">for</span> d <span class="kw">in</span> range(<span class="num">0</span>, <span class="num">65536</span>, <span class="num">800</span>):   <span class="cm"># 占空比由 0 升到满</span>
+        pwm.duty_u16(d)            <span class="cm"># 16 位: 0~65535</span>
+        time.sleep_ms(<span class="num">5</span>)
+    <span class="kw">for</span> d <span class="kw">in</span> range(<span class="num">65535</span>, <span class="num">0</span>, -<span class="num">800</span>):  <span class="cm"># 再降回去</span>
+        pwm.duty_u16(d)
+        time.sleep_ms(<span class="num">5</span>)</code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · PWM 呼吸灯</b><span class="hint">拖动改变占空比</span></div>
+          <div class="demo-body">
+            <canvas data-demo="pwm" style="height:250px"></canvas>
+            <div class="controls">
+              <label>占空比 <input type="range" min="0" max="100" value="50" data-ctrl="duty"> %</label>
+              <button class="ctrl" data-ctrl="pause">暂停</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="wiring" data-wiring="pwm"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · PWM 不渐变 / 频闪</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>LED 不会平滑呼吸，而是突然全亮/全灭，或肉眼可见地闪。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① PWM 频率太低（如 1Hz）肉眼能看到闪烁；② 占空比 API 版本错（<code>duty</code> vs <code>duty_u16</code>）；③ 该脚不支持 PWM。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>频率设 1000Hz 以上；按 MicroPython 版本用对 API；确认脚支持 PWM（GPIO2/4/5/12~19/21~23 等）；先 <code>print(pwm)</code> 看报错对号入座。</p></div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">占空比的「最大值」因版本而异</span>老版 MicroPython 用 <code>pwm.duty(0~1023)</code>；新版用 <code>pwm.duty_u16(0~65535)</code>。你先 <code>print(pwm)</code> 看报错提示即可对上号。</div>
+      </article>
+
+      <!-- 课程 3 -->
+      <article class="course reveal" id="c3">
+        <div class="course-head">
+          <div class="course-idx">3</div>
+          <div><h3>连接 Wi‑Fi：让芯片「上网」</h3><div class="sub">时长 ≈ 2h · 中级阶段</div></div>
+          <button class="check-btn" data-course="stage2-c3" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">📶</span>
+          <div class="body"><b>心智图像：</b>连 Wi‑Fi 就像<strong> joining 一个会议室</strong>：先报上房间名（SSID），再输密码（PASSWORD），路由器同意了就给你发个「工牌」——也就是 IP 地址。有了 IP，你才能跟外面的世界（手机、服务器、互联网）对话。</div>
+        </div>
+        <p>ESP32 的无线是硬件自带，软件里用 <code>network</code> 模块。注意：<strong>连接是异步的</strong>，要「等」它连上再往下走，不然马上用网络会报错。</p>
+        <pre data-copy><code><span class="kw">import</span> network, time
+wlan = network.WLAN(network.STA_IF)   <span class="cm"># STA=作为设备连路由器</span>
+wlan.active(<span class="kw">True</span>)
+wlan.connect(<span class="str">"你的WiFi名"</span>, <span class="str">"密码"</span>)
+
+<span class="kw">while</span> <span class="kw">not</span> wlan.isconnected():
+    print(<span class="str">"连接中..."</span>)
+    time.sleep(<span class="num">1</span>)
+
+print(<span class="str">"已连接! IP ="</span>, wlan.ifconfig()[<span class="num">0</span>])</code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · Wi‑Fi 连接状态机</b><span class="hint">点「连接 / 断网」</span></div>
+          <div class="demo-body">
+            <canvas data-demo="wifiState" style="height:220px"></canvas>
+            <div class="controls">
+              <button class="ctrl" data-ctrl="connect">连接</button>
+              <button class="ctrl" data-ctrl="loss">断网</button>
+              <button class="ctrl" data-ctrl="pause">暂停</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note info"><span class="t">家庭 Wi‑Fi 大多是 2.4GHz</span>ESP32 只支持 2.4GHz，连不上 5GHz 的 Wi‑Fi 是正常现象。另外把密码写死在代码里只是练习，真实产品要用后面「配网」技巧。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · Wi‑Fi 连不上</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>一直打印「连接中…」，<code>isconnected()</code> 永远 False。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 路由器是 5GHz（ESP32 只认 2.4G）；② SSID/密码写错；③ 没先 <code>active(True)</code> 再 <code>connect</code>；④ 信号太弱或隐藏 SSID。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>确认连 2.4G 网络；核对账号密码；顺序是 active→connect→等 isconnected 再发网络请求；把板子靠近路由器；隐藏 SSID 需显式传参数。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 4 -->
+      <article class="course reveal" id="c4">
+        <div class="course-head">
+          <div class="course-idx">4</div>
+          <div><h3>做个 Web 服务器：用手机控制 LED</h3><div class="sub">时长 ≈ 2.5h · 中级阶段</div></div>
+          <button class="check-btn" data-course="stage2-c4" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">📱</span>
+          <div class="body"><b>心智图像：</b>ESP32 自己变成了一个<strong>迷你网站</strong>。你的手机浏览器打开它的 IP，就像访问任意网页。你点页面上的「开/关」，手机就发一条 HTTP 请求「/on」或「/off」，芯片收到后翻转 LED——<strong>完全不需要装 App</strong>。</div>
+        </div>
+        <p>用 MicroPython 的 <code>socket</code> 就能搭一个极简 HTTP 服务器。它监听 80 端口，收到请求后看路径决定动作，再回一段 HTML（含两个按钮）。</p>
+        <pre data-copy><code><span class="kw">import</span> socket, network
+<span class="kw">from</span> machine <span class="kw">import</span> Pin
+led = Pin(<span class="num">2</span>, Pin.OUT)
+
+<span class="kw">def</span> page():
+    s = <span class="str">'&lt;a href="/on"&gt;开灯&lt;/a&gt; &lt;a href="/off"&gt;关灯&lt;/a&gt;'</span>
+    <span class="kw">return</span> <span class="str">"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n&lt;h2&gt;ESP32&lt;/h2&gt;"</span>+s
+
+s = socket.socket()
+s.bind(('0.0.0.0', <span class="num">80</span>))
+s.listen(<span class="num">1</span>)
+<span class="kw">while</span> <span class="kw">True</span>:
+    c, _ = s.accept()
+    req = c.recv(<span class="num">1024</span>).decode()
+    <span class="kw">if</span> <span class="str">"/on"</span> <span class="kw">in</span> req: led.value(<span class="num">1</span>)
+    <span class="kw">if</span> <span class="str">"/off"</span> <span class="kw">in</span> req: led.value(<span class="num">0</span>)
+    c.send(page().encode())
+    c.close()</code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · Web 服务器请求流</b><span class="hint">点开灯/关灯看数据流动</span></div>
+          <div class="demo-body">
+            <canvas data-demo="webServer" style="height:240px"></canvas>
+            <div class="controls">
+              <button class="ctrl" data-ctrl="on">开灯 /on</button>
+              <button class="ctrl" data-ctrl="off">关灯 /off</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">连不上？</span>手机要和 ESP32 在<strong>同一个 Wi‑Fi</strong> 下；浏览器地址填 <code>http://&lt;ESP32的IP&gt;</code>。若提示「拒绝连接」，多半是服务器死循环没 <code>accept</code> 到，检查代码缩进。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 手机打不开网页</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>浏览器打不开 <code>http://ESP32的IP</code>，提示拒绝连接或超时。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 手机和 ESP32 不在同一 Wi‑Fi；② IP 地址填错；③ 服务器死循环没 <code>accept</code> 到新连接；④ 80 端口被占 / 防火墙。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>确认同网段；地址用 <code>http://&lt;打印出的IP&gt;</code>；检查 <code>accept()</code> 缩进在 while 里；换端口（如 8080）；关掉电脑防火墙试。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 5 -->
+      <article class="course reveal" id="c5">
+        <div class="course-head">
+          <div class="course-idx">5</div>
+          <div><h3>I2C 与 OLED 显示屏：让数据有「脸」</h3><div class="sub">时长 ≈ 2h · 中级阶段</div></div>
+          <button class="check-btn" data-course="stage2-c5" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🎓</span>
+          <div class="body"><b>心智图像：</b>I2C 像<strong>课堂上老师点名</strong>。整条总线只有两根线（时钟 SCL + 数据 SDA），可以挂很多学生(设备)。老师(ESP32 主机)先喊「3C 号同学」(地址)，只有被点到的屏才应答，然后双方用这两根线交换数据。其它屏假装没听见。</div>
+        </div>
+        <p>最常见的 0.96 寸 OLED 屏地址是 <code>0x3C</code>。用 <code>machine.I2C</code> 建立总线（默认 SCL=GPIO22, SDA=GPIO21），再用 SSD1306 驱动库画图。下面先「扫描」确认地址。</p>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> I2C, Pin
+<span class="kw">from</span> ssd1306 <span class="kw">import</span> SSD1306_I2C
+
+i2c = I2C(<span class="num">0</span>, scl=Pin(<span class="num">22</span>), sda=Pin(<span class="num">21</span>))
+print(<span class="str">"发现的设备:"</span>, [hex(x) <span class="kw">for</span> x <span class="kw">in</span> i2c.scan()])  <span class="cm"># 通常打印 [0x3c]</span>
+
+oled = SSD1306_I2C(<span class="num">128</span>, <span class="num">64</span>, i2c)
+oled.text(<span class="str">"Hello ESP32"</span>, <span class="num">10</span>, <span class="num">20</span>)
+oled.show()</code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · I2C 总线寻址</b><span class="hint">看主机如何点名</span></div>
+          <div class="demo-body">
+            <canvas data-demo="i2c" style="height:240px"></canvas>
+            <div class="controls">
+              <button class="ctrl" data-ctrl="pause">暂停</button>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="wiring" data-wiring="oled"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · OLED 不亮 / I2C 找不到</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>屏不亮，或 <code>i2c.scan()</code> 返回空列表 <code>[]</code>。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① I2C 地址不对（常见 0x3C，也有 0x3D）；② SDA/SCL 接反；③ 用了 5V 供电（屏是 3.3V 器件）；④ 模块没带上拉电阻、接触不良。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>先 <code>i2c.scan()</code> 看实际地址；确认 SDA→GPIO21、SCL→GPIO22；用 <b>3.3V</b> 供电（别接 5V）；检查杜邦线接触；多数模块自带 4.7k 上拉，无需另加。</p></div>
+          </div>
+        </div>
+        <div class="note info"><span class="t">为什么两根线能连很多设备？</span>因为每个 I2C 设备有<strong>唯一地址</strong>。ESP32 喊地址，匹配的设备才回应，其余保持沉默。这也是它比「一个设备占一堆脚」的 SPI 更省引脚的原因。</div>
+      </article>
+
+      <!-- 课程 6 -->
+      <article class="course reveal" id="c6">
+        <div class="course-head">
+          <div class="course-idx">6</div>
+          <div><h3>传感器实战：温湿度「看板」</h3><div class="sub">时长 ≈ 2h · 中级阶段</div></div>
+          <button class="check-btn" data-course="stage2-c6" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🌫️</span>
+          <div class="body"><b>心智图像：</b>传感器就是<strong>把物理世界「翻译」成电信号的小翻译官</strong>。BME280 这类「环境传感器」内部量好温度/湿度/气压，然后通过 I2C 把数字报到 ESP32。你只管问它「现在多少度」，它答你一个数字。</div>
+        </div>
+        <p>把前面学的 I2C（课 5）+ ADC（课 1）组合起来，就能做环境监测。下面用 BME280（温/湿/压）为例，读出来再画到 OLED 上——一个会自己显示天气的小摆件。</p>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> I2C, Pin
+<span class="kw">from</span> bme280 <span class="kw">import</span> BME280
+<span class="kw">from</span> ssd1306 <span class="kw">import</span> SSD1306_I2C
+<span class="kw">import</span> time
+
+i2c = I2C(<span class="num">0</span>, scl=Pin(<span class="num">22</span>), sda=Pin(<span class="num">21</span>))
+bme = BME280(i2c=i2c)
+oled = SSD1306_I2C(<span class="num">128</span>, <span class="num">64</span>, i2c)
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    t, p, h = bme.read_compensated_data()
+    oled.fill(<span class="num">0</span>)
+    oled.text(<span class="str">"Temp %.1f C"</span> % t, <span class="num">0</span>, <span class="num">0</span>)
+    oled.text(<span class="str">"Humi %.1f %%"</span> % h, <span class="num">0</span>, <span class="num">16</span>)
+    oled.text(<span class="str">"Pres %.0f hPa"</span> % (p/<span class="num">100</span>), <span class="num">0</span>, <span class="num">32</span>)
+    oled.show()
+    time.sleep(<span class="num">2</span>)</code></pre>
+        <div class="wiring" data-wiring="sensor"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 传感器读不到 / NaN</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>读出来是 <code>NaN</code>、一直是 0，或导入库直接报错。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 驱动库（<code>ssd1306</code>/<code>bme280</code>/<code>dht</code>）没上传到板子；② I2C 地址冲突；③ 接线松 / 供电不足；④ DHT 时序严格，偶尔失败。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>把驱动库放进板子 <code>/lib</code> 目录；先 <code>i2c.scan()</code> 确认地址；新手直接用 BME280（I2C，稳）；检查 3.3V 供电与接触。</p></div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">DHT 还是 BME？</span>DHT11/22 用一根线（单总线），便宜但慢、易失败；<b>BME280/BME680 用 I2C，更稳更准，还能测气压</b>。新手建议直接上 BME280，体验好很多。</div>
+      </article>
+
+      <!-- 课程 7 -->
+      <article class="course reveal" id="c7">
+        <div class="course-head">
+          <div class="course-idx">7</div>
+          <div><h3>定时器与中断：不用一直盯着，事件来了再响应</h3><div class="sub">时长 ≈ 2.5h · 中级阶段</div></div>
+          <button class="check-btn" data-course="stage2-c7" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">⏰</span>
+          <div class="body"><b>心智图像：</b>前面 <code>time.sleep()</code> 像你<strong>闭眼数秒、啥也不干地干等</strong>。中断和定时器则是「定个闹钟 / 雇个门铃」——时间到了或按钮被按，芯片<strong>自动跳去执行一段「回调函数」</strong>，平时该干嘛干嘛。这叫<strong>非阻塞</strong>，效率天差地别。</div>
+        </div>
+        <p>两种常用手段：<b>定时器（Timer）</b>周期性触发；<b>引脚中断（Pin.irq）</b>在电平变化时触发（比如按钮按下瞬间）。两者都让你摆脱「死等」。</p>
+        <pre data-copy><code><span class="kw">from</span> machine <span class="kw">import</span> Timer, Pin
+
+led = Pin(<span class="num">2</span>, Pin.OUT)
+tim = Timer(<span class="num">0</span>)
+
+<span class="cm"># 每 500ms 翻转一次灯(非阻塞呼吸式闪烁)</span>
+<span class="kw">def</span> toggle(t):
+    led.value(<span class="num">1</span> - led.value())
+
+tim.init(period=<span class="num">500</span>, mode=Timer.PERIODIC, callback=toggle)
+
+<span class="cm"># 按钮中断: 按下瞬间才触发, 平时主循环空转</span>
+btn = Pin(<span class="num">4</span>, Pin.IN, Pin.PULL_UP)
+<span class="kw">def</span> on_press(p):
+    print(<span class="str">"按钮被按下了!(在中断里)"</span>)
+btn.irq(trigger=Pin.IRQ_FALLING, handler=on_press)
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="kw">pass</span>   <span class="cm"># 主循环可以去做别的事</span></code></pre>
+        <div class="note info"><span class="t">中断里别做「重活」</span>回调函数应当<strong>短平快</strong>（设个标志位、翻转个变量）。在里面用 <code>time.sleep</code> 或打印大量内容都可能导致系统不稳定。正确姿势：中断里只「记一笔」，主循环里再处理。</div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 中断不触发 / 卡死</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>按钮按了中断没反应，或进中断后整个程序卡住。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 没设 <code>handler</code> 或 <code>trigger</code> 方向写反；② 回调函数里调了阻塞函数（<code>time.sleep</code>、大量 <code>print</code>）；③ 引脚不支持中断。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>用 <code>btn.irq(trigger=Pin.IRQ_FALLING, handler=on_press)</code>；回调里<b>只设标志位</b>，主循环再处理；确认所用 GPIO 支持中断（几乎都支持）。</p></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 课程 8 -->
+      <article class="course reveal" id="c8">
+        <div class="course-head">
+          <div class="course-idx">8</div>
+          <div><h3>深度睡眠与省电：电池供电的关键</h3><div class="sub">时长 ≈ 1.5h · 中级阶段</div></div>
+          <button class="check-btn" data-course="stage2-c8" title="标记完成">✓</button>
+        </div>
+        <div class="mind">
+          <span class="ico">🔋</span>
+          <div class="body"><b>心智图像：</b>ESP32 有三种「清醒程度」。<strong>全速工作</strong>像跑步（费电）；<strong> modem‑sleep</strong> 像站着打盹（Wi‑Fi 还连着，偶尔睁眼）；<strong>深度睡眠</strong>像冬眠——只留一个心跳( RTC )维持，电流从几十 mA 掉到<strong>几微安</strong>。电池设备靠它续命几个月。</div>
+        </div>
+        <p>深度睡眠时 CPU、Wi‑Fi、大部分外设都断电，只有 RTC 和少量内存活着。可以设定「被某个引脚唤醒」或「定时唤醒」。</p>
+        <pre data-copy><code><span class="kw">import</span> machine, time
+<span class="cm"># 唤醒后先打印一次, 然后睡 10 秒再醒</span>
+print(<span class="str">"醒啦! 原因:"</span>, machine.wake_reason())
+
+<span class="cm"># 方式1: 定时唤醒(毫秒)</span>
+machine.deepsleep(<span class="num">10000</span>)
+
+<span class="cm"># 方式2: 引脚唤醒(需外部电路把 GPIO 拉低)</span><span class="cm"> </span>
+<span class="cm"># machine.pinwake = Pin(4, mode=Pin.IN)</span>
+<span class="cm"># machine.deepsleep()</span></code></pre>
+        <div class="demo">
+          <div class="demo-head"><span class="pulse"></span><b>交互 · 深度睡眠省电对比</b><span class="hint">拖滑块看续航变化</span></div>
+          <div class="demo-body">
+            <canvas data-demo="deepSleep" style="height:250px"></canvas>
+            <div class="controls">
+              <label>每天唤醒 <input type="range" min="1" max="500" value="100" data-ctrl="wake"> 次</label>
+              <span class="readout" data-readout></span>
+            </div>
+          </div>
+        </div>
+        <div class="wiring" data-wiring="battery_sleep"></div>
+        <div class="trouble">
+          <div class="t-head"><span class="ico">🛠️</span><span>排错卡 · 深度睡眠唤不醒</span></div>
+          <div class="t-body">
+            <div class="row"><span class="lab sym">症状</span><p>进了深度睡眠就再也醒不过来，或醒来后立刻又睡。</p></div>
+            <div class="row"><span class="lab cau">原因</span><p>① 唤醒源没接对（需外部把 GPIO 拉低）；② <code>ext0/ext1</code> 配置错；③ 唤醒后没根据 <code>wake_reason()</code> 做该做的事就又睡了；④ 没共地。</p></div>
+            <div class="row"><span class="lab fix">解法</span><p>用 <code>machine.wake_reason()</code> 确认唤醒源；按键一端接 GPIO、一端接 GND，配置 <code>ext0(pin, level=0)</code>；确保与 ESP32 共地；醒来先做采集/上报再睡。</p></div>
+          </div>
+        </div>
+        <div class="note warn"><span class="t">深度睡眠的「代价」</span>睡死状态下<strong>你的程序变量全没了、网络也断了</strong>，醒来相当于「重新启动」。所以省电设备要设计成：醒来 → 快速采集/上报 → 立刻再睡。这正是物联网传感器的经典节奏。</div>
+        <p>🎉 <b>中级阶段完成！</b>你已经能做：渐变灯、温湿度看板、手机控灯、电池长续航设备。下一步进入高级，让多块板子互聊、上云、驱动物体。</p>
+      </article>
+
+    </div>
+  </div>
+
+  <footer class="foot">
+    中级阶段完 · 下一站：<a href="stage3.html">高级阶段 →</a> ESP‑NOW 直连、MQTT 上云、蓝牙、电机、OTA 升级。
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+<script src="assets/demos.js"></script>
+<script src="assets/wiring.js"></script>
+</body>
+</html>
